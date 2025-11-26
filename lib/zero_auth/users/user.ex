@@ -27,6 +27,17 @@ defmodule ZeroAuth.Users.User do
     |> put_password_hash()
   end
 
+  def update_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:email, :password, :name, :sub])
+    |> validate_required([:email, :sub])
+    |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must be a valid email")
+    |> validate_length(:password, min: 8)
+    |> unique_constraint(:email)
+    |> unique_constraint(:sub)
+    |> put_password_hash()
+  end
+
   defp put_password_hash(
          %Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset
        ) do

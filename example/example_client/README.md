@@ -5,6 +5,7 @@ This is an example OIDC client application that authenticates with the zero-auth
 ## Prerequisites
 
 - zero-auth provider running on `http://localhost:4000`
+- A user registered in zero-auth (see Setup step 1)
 - A client registered in zero-auth with the following configuration:
   - `client_id`: `example_client` (or set via `OIDC_CLIENT_ID` environment variable)
   - `client_secret`: `example_secret` (or set via `OIDC_CLIENT_SECRET` environment variable)
@@ -12,9 +13,26 @@ This is an example OIDC client application that authenticates with the zero-auth
 
 ## Setup
 
-### 1. Register a client in zero-auth
+### 1. Register a user in zero-auth
 
-First, register a client in the zero-auth provider:
+First, register a user in the zero-auth provider:
+
+```bash
+curl -X POST http://localhost:4000/management/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "password123",
+    "sub": "user123",
+    "name": "Test User"
+  }'
+```
+
+Note: The `sub` field must be unique and is used as the user identifier in OIDC tokens.
+
+### 2. Register a client in zero-auth
+
+Next, register a client in the zero-auth provider:
 
 ```bash
 curl -X POST http://localhost:4000/management/clients \
@@ -30,7 +48,7 @@ curl -X POST http://localhost:4000/management/clients \
 
 Save the `client_secret` from the response - you'll need it for configuration.
 
-### 2. Configure the client
+### 3. Configure the client
 
 Set environment variables or update `config/config.exs`:
 
@@ -49,14 +67,14 @@ config :example_client,
   provider_url: "http://localhost:4000"
 ```
 
-### 3. Install dependencies
+### 4. Install dependencies
 
 ```bash
 cd example/example_client
 mix deps.get
 ```
 
-### 4. Start the server
+### 5. Start the server
 
 ```bash
 mix phx.server
@@ -75,8 +93,9 @@ The application will be available at [`http://localhost:4001`](http://localhost:
 1. Visit `http://localhost:4001` in your browser
 2. Click "Login with zero-auth" button
 3. You will be redirected to zero-auth login page
-4. After successful login, you will be redirected back to the client
-5. Your user information will be displayed on the page
+4. Enter the email and password you registered in step 1
+5. After successful login, you will be redirected back to the client
+6. Your user information will be displayed on the page
 
 ## Features
 

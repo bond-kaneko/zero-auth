@@ -53,6 +53,13 @@ defmodule ZeroAuthWeb.Router do
     patch "/clients/:id", ClientController, :update
     delete "/clients/:id", ClientController, :delete
     put "/clients/:id/secret", ClientController, :update_secret
+
+    get "/users", UserController, :index
+    get "/users/:id", UserController, :show
+    post "/users", UserController, :create
+    put "/users/:id", UserController, :update
+    patch "/users/:id", UserController, :update
+    delete "/users/:id", UserController, :delete
   end
 
   # Other scopes may use custom stacks.
