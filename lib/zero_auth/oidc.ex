@@ -54,5 +54,35 @@ defmodule ZeroAuth.OIDC do
     Repo.get_by(AccessToken, refresh_token: refresh_token)
     |> Repo.preload([:client, :user])
   end
+
+  def list_clients do
+    Repo.all(Client)
+  end
+
+  def get_client(id) do
+    Repo.get(Client, id)
+  end
+
+  def update_client(%Client{} = client, attrs) do
+    client
+    |> Client.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete_client(%Client{} = client) do
+    Repo.delete(client)
+  end
+
+  def rotate_client_secret(%Client{} = client) do
+    new_secret = Client.generate_client_secret()
+
+    client
+    |> Client.changeset(%{client_secret: new_secret})
+    |> Repo.update()
+    |> case do
+      {:ok, updated_client} -> {:ok, updated_client, new_secret}
+      error -> error
+    end
+  end
 end
 

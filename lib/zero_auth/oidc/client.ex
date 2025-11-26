@@ -45,5 +45,10 @@ defmodule ZeroAuth.OIDC.Client do
   end
 
   def verify_secret(_, _), do: false
+
+  def generate_client_secret do
+    :crypto.strong_rand_bytes(32)
+    |> Base.url_encode64(padding: false)
+  end
 end
 

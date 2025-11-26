@@ -43,6 +43,18 @@ defmodule ZeroAuthWeb.Router do
     get "/openid-configuration", OAuthController, :openid_configuration
   end
 
+  scope "/management", ZeroAuthWeb.Management do
+    pipe_through :api
+
+    get "/clients", ClientController, :index
+    get "/clients/:id", ClientController, :show
+    post "/clients", ClientController, :create
+    put "/clients/:id", ClientController, :update
+    patch "/clients/:id", ClientController, :update
+    delete "/clients/:id", ClientController, :delete
+    put "/clients/:id/secret", ClientController, :update_secret
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", ZeroAuthWeb do
   #   pipe_through :api
