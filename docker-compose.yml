@@ -41,7 +41,29 @@ services:
     stdin_open: true
     tty: true
 
+  example_client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: example_client_app
+    command: sh -c "cd /app/example/example_client && mix phx.server"
+    working_dir: /app/example/example_client
+    volumes:
+      - .:/app
+      - example_client_deps:/app/example/example_client/deps
+      - example_client_build:/app/example/example_client/_build
+    ports:
+      - "4001:4001"
+    environment:
+      PORT: 4001
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-example_client}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-example_secret}
+    stdin_open: true
+    tty: true
+
 volumes:
   postgres_data:
   mix_deps:
   mix_build:
+  example_client_deps:
+  example_client_build:
