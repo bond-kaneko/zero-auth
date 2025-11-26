@@ -13,7 +13,14 @@ defmodule ZeroAuth.OIDC.Authorization do
     |> Base.url_encode64(padding: false)
   end
 
-  def create_authorization_code(client, user, redirect_uri, scopes, code_challenge \\ nil, code_challenge_method \\ nil) do
+  def create_authorization_code(
+        client,
+        user,
+        redirect_uri,
+        scopes,
+        code_challenge \\ nil,
+        code_challenge_method \\ nil
+      ) do
     code = generate_code()
     expires_at = DateTime.add(DateTime.utc_now(), @expires_in_seconds, :second)
 

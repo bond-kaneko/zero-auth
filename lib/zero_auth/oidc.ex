@@ -31,7 +31,9 @@ defmodule ZeroAuth.OIDC do
 
   def mark_authorization_code_as_used(code) do
     case get_authorization_code_by_code(code) do
-      nil -> {:error, :not_found}
+      nil ->
+        {:error, :not_found}
+
       auth_code ->
         auth_code
         |> AuthorizationCode.changeset(%{used: true})

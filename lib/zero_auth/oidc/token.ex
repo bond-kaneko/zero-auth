@@ -18,7 +18,9 @@ defmodule ZeroAuth.OIDC.Token do
     token = generate_token()
     refresh_token = generate_token()
     expires_at = DateTime.add(DateTime.utc_now(), @access_token_expires_in_seconds, :second)
-    refresh_token_expires_at = DateTime.add(DateTime.utc_now(), @refresh_token_expires_in_seconds, :second)
+
+    refresh_token_expires_at =
+      DateTime.add(DateTime.utc_now(), @refresh_token_expires_in_seconds, :second)
 
     attrs = %{
       token: token,

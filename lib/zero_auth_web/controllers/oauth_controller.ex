@@ -111,7 +111,8 @@ defmodule ZeroAuthWeb.OAuthController do
          code when is_binary(code) <- params["code"],
          redirect_uri when is_binary(redirect_uri) <- params["redirect_uri"],
          code_verifier <- params["code_verifier"],
-         {:ok, auth_code} <- Authorization.verify_authorization_code(code, client.id, redirect_uri, code_verifier) do
+         {:ok, auth_code} <-
+           Authorization.verify_authorization_code(code, client.id, redirect_uri, code_verifier) do
       # Mark code as used
       OIDC.mark_authorization_code_as_used(code)
 
@@ -121,11 +122,12 @@ defmodule ZeroAuthWeb.OAuthController do
       case Token.create_access_token(client, user, auth_code.scopes) do
         {:ok, access_token} ->
           # Generate ID token if openid scope is present
-          id_token = if "openid" in auth_code.scopes do
-            JWT.generate_id_token(user, client.client_id, params["nonce"])
-          else
-            nil
-          end
+          id_token =
+            if "openid" in auth_code.scopes do
+              JWT.generate_id_token(user, client.client_id, params["nonce"])
+            else
+              nil
+            end
 
           response = %{
             "access_token" => access_token.token,
@@ -144,6 +146,7 @@ defmodule ZeroAuthWeb.OAuthController do
     else
       {:error, reason} ->
         error_response(conn, reason, "Invalid authorization code")
+
       nil ->
         error_response(conn, :invalid_request, "Missing required parameters")
     end
@@ -174,6 +177,7 @@ defmodule ZeroAuthWeb.OAuthController do
     else
       {:error, reason} ->
         error_response(conn, reason, "Invalid refresh token")
+
       nil ->
         error_response(conn, :invalid_request, "Missing refresh_token")
     end
@@ -181,7 +185,9 @@ defmodule ZeroAuthWeb.OAuthController do
 
   defp get_client(params) do
     case params["client_id"] do
-      nil -> {:error, :invalid_client}
+      nil ->
+        {:error, :invalid_client}
+
       client_id ->
         case OIDC.get_client_by_client_id(client_id) do
           nil -> {:error, :invalid_client}

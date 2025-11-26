@@ -36,5 +36,4 @@ defmodule ZeroAuthWeb.ConnCase do
     conn = Phoenix.ConnTest.build_conn()
     {:ok, conn: conn}
   end
-
 end

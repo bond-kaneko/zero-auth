@@ -64,7 +64,11 @@ defmodule ZeroAuthWeb.LoginLive do
 
         <.form for={@form} phx-submit="login" id="login-form">
           <input type="hidden" name="oauth_params[client_id]" value={@oauth_params["client_id"]} />
-          <input type="hidden" name="oauth_params[redirect_uri]" value={@oauth_params["redirect_uri"]} />
+          <input
+            type="hidden"
+            name="oauth_params[redirect_uri]"
+            value={@oauth_params["redirect_uri"]}
+          />
           <input type="hidden" name="oauth_params[scope]" value={@oauth_params["scope"]} />
           <input type="hidden" name="oauth_params[state]" value={@oauth_params["state"]} />
           <.input field={@form[:email]} type="email" label="Email" required />

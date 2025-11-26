@@ -23,6 +23,23 @@ defmodule ZeroAuthWeb.SessionController do
     end
   end
 
+  # Handle redirect from LiveView with user_id in query params
+  def create(conn, %{"user_id" => user_id} = params) do
+    case Repo.get(User, user_id) do
+      nil ->
+        conn
+        |> put_flash(:error, "User not found")
+        |> redirect(to: "/login")
+
+      user ->
+        oauth_params = Map.drop(params, ["user_id"])
+
+        conn
+        |> put_session(:user_id, user.id)
+        |> redirect_after_login(oauth_params)
+    end
+  end
+
   defp authenticate_user(email, password) do
     case Repo.get_by(User, email: email) do
       nil ->
@@ -43,23 +60,6 @@ defmodule ZeroAuthWeb.SessionController do
       redirect(conn, to: "/oauth/authorize?#{query_string}")
     else
       redirect(conn, to: "/")
-    end
-  end
-
-  # Handle redirect from LiveView with user_id in query params
-  def create(conn, %{"user_id" => user_id} = params) do
-    case Repo.get(User, user_id) do
-      nil ->
-        conn
-        |> put_flash(:error, "User not found")
-        |> redirect(to: "/login")
-
-      user ->
-        oauth_params = Map.drop(params, ["user_id"])
-
-        conn
-        |> put_session(:user_id, user.id)
-        |> redirect_after_login(oauth_params)
     end
   end
 end

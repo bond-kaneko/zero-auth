@@ -20,7 +20,15 @@ defmodule ZeroAuth.OIDC.AccessToken do
 
   def changeset(access_token, attrs) do
     access_token
-    |> cast(attrs, [:token, :refresh_token, :client_id, :user_id, :scopes, :expires_at, :refresh_token_expires_at])
+    |> cast(attrs, [
+      :token,
+      :refresh_token,
+      :client_id,
+      :user_id,
+      :scopes,
+      :expires_at,
+      :refresh_token_expires_at
+    ])
     |> validate_required([:token, :client_id, :expires_at])
     |> unique_constraint(:token)
     |> unique_constraint(:refresh_token)

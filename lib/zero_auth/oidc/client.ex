@@ -27,7 +27,9 @@ defmodule ZeroAuth.OIDC.Client do
     |> set_defaults()
   end
 
-  defp put_client_secret_hash(%Ecto.Changeset{valid?: true, changes: %{client_secret: secret}} = changeset) do
+  defp put_client_secret_hash(
+         %Ecto.Changeset{valid?: true, changes: %{client_secret: secret}} = changeset
+       ) do
     change(changeset, client_secret_hash: Argon2.hash_pwd_salt(secret))
   end
 
@@ -36,8 +38,14 @@ defmodule ZeroAuth.OIDC.Client do
   defp set_defaults(changeset) do
     changeset
     |> put_change(:redirect_uris, Ecto.Changeset.get_change(changeset, :redirect_uris) || [])
-    |> put_change(:grant_types, Ecto.Changeset.get_change(changeset, :grant_types) || ["authorization_code"])
-    |> put_change(:scopes, Ecto.Changeset.get_change(changeset, :scopes) || ["openid", "profile", "email"])
+    |> put_change(
+      :grant_types,
+      Ecto.Changeset.get_change(changeset, :grant_types) || ["authorization_code"]
+    )
+    |> put_change(
+      :scopes,
+      Ecto.Changeset.get_change(changeset, :scopes) || ["openid", "profile", "email"]
+    )
   end
 
   def verify_secret(%__MODULE__{client_secret_hash: hash}, secret) when is_binary(secret) do

@@ -23,6 +23,7 @@ defmodule ZeroAuthWeb.Management.ClientController do
       {:ok, client} ->
         # Extract client_secret from changeset if available
         client_secret = extract_client_secret_from_changeset(client, params)
+
         conn
         |> put_status(:created)
         |> json(client_to_json(client, client_secret))
