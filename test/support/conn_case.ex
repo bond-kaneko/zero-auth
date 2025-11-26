@@ -33,6 +33,8 @@ defmodule ZeroAuthWeb.ConnCase do
 
   setup tags do
     ZeroAuth.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    conn = Phoenix.ConnTest.build_conn()
+    {:ok, conn: conn}
   end
+
 end

@@ -18,6 +18,29 @@ defmodule ZeroAuthWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/login", LoginLive, :index
+    post "/sessions", SessionController, :create
+    get "/sessions", SessionController, :create
+  end
+
+  scope "/oauth", ZeroAuthWeb do
+    pipe_through :browser
+
+    get "/authorize", OAuthController, :authorize
+    post "/authorize", OAuthController, :authorize
+  end
+
+  scope "/oauth", ZeroAuthWeb do
+    pipe_through :api
+
+    post "/token", OAuthController, :token
+    get "/userinfo", OAuthController, :userinfo
+  end
+
+  scope "/.well-known", ZeroAuthWeb do
+    pipe_through :api
+
+    get "/openid-configuration", OAuthController, :openid_configuration
   end
 
   # Other scopes may use custom stacks.
