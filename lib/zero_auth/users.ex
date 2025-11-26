@@ -34,4 +34,3 @@ defmodule ZeroAuth.Users do
     Repo.delete(user)
   end
 end
-

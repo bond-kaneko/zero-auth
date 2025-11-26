@@ -25,7 +25,9 @@ config :zero_auth, ZeroAuthWeb.Endpoint,
   code_reloader: true,
   debug_errors: true,
   secret_key_base: "sL4LtMFI3dUYEBG879pBwVfkh5HQAcyGHSimB9wLNFOMk16qANS5762W7xhw6fDx",
-  watchers: []
+  watchers: [
+    esbuild: {Esbuild, :install_and_run, [:zero_auth, ~w(--sourcemap=inline --watch)]}
+  ]
 
 # ## SSL Support
 #

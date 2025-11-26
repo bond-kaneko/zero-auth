@@ -51,8 +51,11 @@ config :logger, :default_formatter,
 config :phoenix, :json_library, Jason
 
 # OIDC Provider configuration
+# provider_url: Server-side URL for container-to-container communication (default: http://app:4000)
+# provider_url_browser: Browser-facing URL for redirects (default: http://localhost:4000)
 config :example_client,
-  provider_url: "http://localhost:4000",
+  provider_url: System.get_env("PROVIDER_URL") || "http://app:4000",
+  provider_url_browser: System.get_env("PROVIDER_URL_BROWSER") || "http://localhost:4000",
   client_id: System.get_env("OIDC_CLIENT_ID") || "example_client",
   client_secret: System.get_env("OIDC_CLIENT_SECRET") || "example_secret",
   redirect_uri: "http://localhost:4001/auth/callback"

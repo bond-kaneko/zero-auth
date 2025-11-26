@@ -32,7 +32,11 @@ defmodule ZeroAuthWeb.SessionController do
         |> redirect(to: "/login")
 
       user ->
-        oauth_params = Map.drop(params, ["user_id"])
+        oauth_params =
+          params
+          |> Map.drop(["user_id"])
+          |> Enum.filter(fn {_key, value} -> value != nil && value != "" end)
+          |> Map.new()
 
         conn
         |> put_session(:user_id, user.id)

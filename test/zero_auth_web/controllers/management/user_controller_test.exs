@@ -133,4 +133,3 @@ defmodule ZeroAuthWeb.Management.UserControllerTest do
     user
   end
 end
-

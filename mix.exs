@@ -59,6 +59,7 @@ defmodule ZeroAuth.MixProject do
       {:bandit, "~> 1.5"},
       {:joken, "~> 2.6"},
       {:argon2_elixir, "~> 3.0"},
+      {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
@@ -71,9 +72,15 @@ defmodule ZeroAuth.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup"],
+      setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "assets.setup": ["esbuild.install --if-missing"],
+      "assets.build": ["compile", "esbuild zero_auth"],
+      "assets.deploy": [
+        "esbuild zero_auth --minify",
+        "phx.digest"
+      ],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       precommit: [
         "compile --warning-as-errors",

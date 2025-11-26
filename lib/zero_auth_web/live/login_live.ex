@@ -5,29 +5,52 @@ defmodule ZeroAuthWeb.LoginLive do
   alias ZeroAuth.Repo
   alias ZeroAuth.Users.User
 
-  def mount(_params, _session, socket) do
-    {:ok, assign(socket, form: to_form(%{}, as: :user), oauth_params: %{})}
+  def mount(params, _session, socket) do
+    # Extract oauth_params from query params (client_id, redirect_uri, scope, state)
+    oauth_params = %{
+      "client_id" => params["client_id"] || "",
+      "redirect_uri" => params["redirect_uri"] || "",
+      "scope" => params["scope"] || "",
+      "state" => params["state"] || ""
+    }
+    {:ok, assign(socket, form: to_form(%{}, as: :user), oauth_params: oauth_params)}
   end
 
   def handle_params(params, _uri, socket) do
-    {:noreply, assign(socket, oauth_params: params)}
+    # Extract oauth_params from query params (client_id, redirect_uri, scope, state)
+    oauth_params = %{
+      "client_id" => params["client_id"] || "",
+      "redirect_uri" => params["redirect_uri"] || "",
+      "scope" => params["scope"] || "",
+      "state" => params["state"] || ""
+    }
+    {:noreply, assign(socket, oauth_params: oauth_params)}
   end
 
-  def handle_event("login", %{"user" => user_params} = params, socket) do
+  def handle_event("login", params, socket) do
+    # Extract user_params from params - handle both nested and flat structures
+    user_params = params["user"] || %{}
     oauth_params = params["oauth_params"] || socket.assigns.oauth_params || %{}
-    email = user_params["email"]
-    password = user_params["password"]
+    email = user_params["email"] || params["email"]
+    password = user_params["password"] || params["password"]
 
-    case authenticate_user(email, password) do
-      {:ok, user} ->
-        redirect_path = build_redirect_path(user.id, oauth_params)
-        {:noreply, redirect(socket, to: redirect_path)}
+    if email && password do
+      case authenticate_user(email, password) do
+        {:ok, user} ->
+          redirect_path = build_redirect_path(user.id, oauth_params)
+          {:noreply, redirect(socket, to: redirect_path)}
 
-      {:error, :invalid_credentials} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Invalid email or password")
-         |> assign(form: to_form(user_params, as: :user))}
+        {:error, :invalid_credentials} ->
+          {:noreply,
+           socket
+           |> put_flash(:error, "Invalid email or password")
+           |> assign(form: to_form(user_params, as: :user))}
+      end
+    else
+      {:noreply,
+       socket
+       |> put_flash(:error, "Email and password are required")
+       |> assign(form: to_form(user_params, as: :user))}
     end
   end
 
@@ -48,7 +71,7 @@ defmodule ZeroAuthWeb.LoginLive do
   defp build_redirect_path(user_id, oauth_params) do
     base_path = "/sessions?user_id=#{user_id}"
 
-    if oauth_params["client_id"] do
+    if oauth_params["client_id"] && oauth_params["client_id"] != "" do
       oauth_query = URI.encode_query(oauth_params)
       "#{base_path}&#{oauth_query}"
     else
