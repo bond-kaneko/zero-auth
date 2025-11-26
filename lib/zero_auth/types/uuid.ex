@@ -30,4 +30,3 @@ defmodule ZeroAuth.Types.UUID do
     Ecto.UUID.generate()
   end
 end
-

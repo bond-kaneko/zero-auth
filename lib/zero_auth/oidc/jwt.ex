@@ -3,8 +3,8 @@ defmodule ZeroAuth.OIDC.JWT do
   Module for generating and verifying JWTs
   """
 
-  alias Joken.Signer
   alias Joken.Config
+  alias Joken.Signer
 
   @issuer "zero-auth"
   @algorithm "HS256"
@@ -53,4 +53,3 @@ defmodule ZeroAuth.OIDC.JWT do
     Application.get_env(:zero_auth, :jwt_secret, "default-secret-change-in-production")
   end
 end
-

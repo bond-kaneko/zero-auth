@@ -3,10 +3,10 @@ defmodule ZeroAuth.OIDC do
   Context module for OIDC-related operations
   """
 
-  alias ZeroAuth.Repo
-  alias ZeroAuth.OIDC.Client
-  alias ZeroAuth.OIDC.AuthorizationCode
   alias ZeroAuth.OIDC.AccessToken
+  alias ZeroAuth.OIDC.AuthorizationCode
+  alias ZeroAuth.OIDC.Client
+  alias ZeroAuth.Repo
 
   def get_client_by_client_id(client_id) do
     Repo.get_by(Client, client_id: client_id)
@@ -85,4 +85,3 @@ defmodule ZeroAuth.OIDC do
     end
   end
 end
-

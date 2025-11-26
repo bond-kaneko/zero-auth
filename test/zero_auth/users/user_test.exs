@@ -85,5 +85,3 @@ defmodule ZeroAuth.Users.UserTest do
     end
   end
 end
-
-

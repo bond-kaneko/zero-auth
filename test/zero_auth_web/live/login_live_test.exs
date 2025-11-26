@@ -3,8 +3,8 @@ defmodule ZeroAuthWeb.LoginLiveTest do
 
   import Phoenix.LiveViewTest
 
-  alias ZeroAuth.Users.User
   alias ZeroAuth.Repo
+  alias ZeroAuth.Users.User
 
   setup do
     {:ok, user} =
@@ -62,4 +62,3 @@ defmodule ZeroAuthWeb.LoginLiveTest do
     end
   end
 end
-

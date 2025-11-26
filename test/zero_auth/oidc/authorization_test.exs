@@ -4,6 +4,7 @@ defmodule ZeroAuth.OIDC.AuthorizationTest do
   alias ZeroAuth.OIDC
   alias ZeroAuth.OIDC.Authorization
   alias ZeroAuth.OIDC.Client
+  alias ZeroAuth.Repo
   alias ZeroAuth.Users.User
 
   setup do
@@ -222,4 +223,3 @@ defmodule ZeroAuth.OIDC.AuthorizationTest do
     end
   end
 end
-

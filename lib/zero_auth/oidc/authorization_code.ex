@@ -22,9 +22,21 @@ defmodule ZeroAuth.OIDC.AuthorizationCode do
 
   def changeset(authorization_code, attrs) do
     authorization_code
-    |> cast(attrs, [:code, :client_id, :user_id, :redirect_uri, :scopes, :code_challenge, :code_challenge_method, :expires_at, :used])
+    |> cast(
+      attrs,
+      [
+        :code,
+        :client_id,
+        :user_id,
+        :redirect_uri,
+        :scopes,
+        :code_challenge,
+        :code_challenge_method,
+        :expires_at,
+        :used
+      ]
+    )
     |> validate_required([:code, :client_id, :user_id, :redirect_uri, :expires_at])
     |> unique_constraint(:code)
   end
 end
-

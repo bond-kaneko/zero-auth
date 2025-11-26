@@ -2,12 +2,12 @@ defmodule ZeroAuthWeb.OAuthController do
   use ZeroAuthWeb, :controller
 
   alias ZeroAuth.OIDC
-  alias ZeroAuth.OIDC.Client
   alias ZeroAuth.OIDC.Authorization
-  alias ZeroAuth.OIDC.Token
+  alias ZeroAuth.OIDC.Client
   alias ZeroAuth.OIDC.JWT
-  alias ZeroAuth.Users.User
+  alias ZeroAuth.OIDC.Token
   alias ZeroAuth.Repo
+  alias ZeroAuth.Users.User
 
   def authorize(conn, params) do
     with {:ok, client} <- get_client(params),
@@ -88,7 +88,14 @@ defmodule ZeroAuthWeb.OAuthController do
     code_challenge = params["code_challenge"]
     code_challenge_method = params["code_challenge_method"]
 
-    case Authorization.create_authorization_code(client, user, redirect_uri, scopes, code_challenge, code_challenge_method) do
+    case Authorization.create_authorization_code(
+           client,
+           user,
+           redirect_uri,
+           scopes,
+           code_challenge,
+           code_challenge_method
+         ) do
       {:ok, auth_code} ->
         state = params["state"]
         redirect_url = build_redirect_url(redirect_uri, auth_code.code, state)
@@ -207,18 +214,24 @@ defmodule ZeroAuthWeb.OAuthController do
   defp authenticate_client(conn, params) do
     case get_client_auth(conn, params) do
       {client_id, client_secret} ->
-        case OIDC.get_client_by_client_id(client_id) do
-          nil -> {:error, :invalid_client}
-          client ->
-            if Client.verify_secret(client, client_secret) do
-              {:ok, client}
-            else
-              {:error, :invalid_client}
-            end
-        end
+        verify_client_credentials(client_id, client_secret)
 
       _ ->
         {:error, :invalid_client}
+    end
+  end
+
+  defp verify_client_credentials(client_id, client_secret) do
+    case OIDC.get_client_by_client_id(client_id) do
+      nil ->
+        {:error, :invalid_client}
+
+      client ->
+        if Client.verify_secret(client, client_secret) do
+          {:ok, client}
+        else
+          {:error, :invalid_client}
+        end
     end
   end
 
@@ -289,4 +302,3 @@ defmodule ZeroAuthWeb.OAuthController do
     })
   end
 end
-

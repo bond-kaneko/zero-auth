@@ -1,9 +1,9 @@
 defmodule ZeroAuthWeb.LoginLive do
   use ZeroAuthWeb, :live_view
 
-  alias ZeroAuth.Users.User
-  alias ZeroAuth.Repo
   alias Argon2
+  alias ZeroAuth.Repo
+  alias ZeroAuth.Users.User
 
   def mount(_params, _session, socket) do
     {:ok, assign(socket, form: to_form(%{}, as: :user), oauth_params: %{})}
@@ -18,26 +18,41 @@ defmodule ZeroAuthWeb.LoginLive do
     email = user_params["email"]
     password = user_params["password"]
 
-    case Repo.get_by(User, email: email) do
-      nil ->
+    case authenticate_user(email, password) do
+      {:ok, user} ->
+        redirect_path = build_redirect_path(user.id, oauth_params)
+        {:noreply, redirect(socket, to: redirect_path)}
+
+      {:error, :invalid_credentials} ->
         {:noreply,
          socket
          |> put_flash(:error, "Invalid email or password")
          |> assign(form: to_form(user_params, as: :user))}
+    end
+  end
+
+  defp authenticate_user(email, password) do
+    case Repo.get_by(User, email: email) do
+      nil ->
+        {:error, :invalid_credentials}
 
       user ->
         if Argon2.verify_pass(password, user.password_hash) do
-          # Redirect to session controller which will set session and redirect
-          oauth_query = if oauth_params["client_id"], do: URI.encode_query(oauth_params), else: ""
-          redirect_path = if oauth_query != "", do: "/sessions?user_id=#{user.id}&#{oauth_query}", else: "/sessions?user_id=#{user.id}"
-
-          {:noreply, redirect(socket, to: redirect_path)}
+          {:ok, user}
         else
-          {:noreply,
-           socket
-           |> put_flash(:error, "Invalid email or password")
-           |> assign(form: to_form(user_params, as: :user))}
+          {:error, :invalid_credentials}
         end
+    end
+  end
+
+  defp build_redirect_path(user_id, oauth_params) do
+    base_path = "/sessions?user_id=#{user_id}"
+
+    if oauth_params["client_id"] do
+      oauth_query = URI.encode_query(oauth_params)
+      "#{base_path}&#{oauth_query}"
+    else
+      base_path
     end
   end
 
@@ -63,6 +78,4 @@ defmodule ZeroAuthWeb.LoginLive do
     </Layouts.app>
     """
   end
-
 end
-

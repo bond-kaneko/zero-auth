@@ -26,4 +26,3 @@ defmodule ZeroAuth.OIDC.AccessToken do
     |> unique_constraint(:refresh_token)
   end
 end
-

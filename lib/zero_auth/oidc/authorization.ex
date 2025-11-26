@@ -75,4 +75,3 @@ defmodule ZeroAuth.OIDC.Authorization do
 
   defp verify_code_challenge(_auth_code, _code_verifier), do: false
 end
-

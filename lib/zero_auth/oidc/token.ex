@@ -7,7 +7,7 @@ defmodule ZeroAuth.OIDC.Token do
 
   @token_length 32
   @access_token_expires_in_seconds 3600
-  @refresh_token_expires_in_seconds 86400 * 30
+  @refresh_token_expires_in_seconds 86_400 * 30
 
   def generate_token do
     :crypto.strong_rand_bytes(@token_length)
@@ -61,4 +61,3 @@ defmodule ZeroAuth.OIDC.Token do
     end
   end
 end
-

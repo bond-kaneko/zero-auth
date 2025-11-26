@@ -33,4 +33,3 @@ defmodule ZeroAuth.Users.User do
 
   defp put_password_hash(changeset), do: changeset
 end
-

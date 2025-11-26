@@ -51,4 +51,3 @@ defmodule ZeroAuth.OIDC.Client do
     |> Base.url_encode64(padding: false)
   end
 end
-

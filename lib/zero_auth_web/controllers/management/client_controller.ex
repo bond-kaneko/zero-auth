@@ -123,4 +123,3 @@ defmodule ZeroAuthWeb.Management.ClientController do
   defp status_code(:bad_request), do: 400
   defp status_code(_), do: 400
 end
-

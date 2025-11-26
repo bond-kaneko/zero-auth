@@ -255,4 +255,3 @@ defmodule ZeroAuthWeb.Management.ClientControllerTest do
     end
   end
 end
-

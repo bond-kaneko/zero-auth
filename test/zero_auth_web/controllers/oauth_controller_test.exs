@@ -2,8 +2,10 @@ defmodule ZeroAuthWeb.OAuthControllerTest do
   use ZeroAuthWeb.ConnCase
 
   alias ZeroAuth.OIDC
-  alias ZeroAuth.Users.User
+  alias ZeroAuth.OIDC.Authorization
+  alias ZeroAuth.OIDC.Token
   alias ZeroAuth.Repo
+  alias ZeroAuth.Users.User
 
   setup do
     {:ok, client} =
@@ -93,7 +95,7 @@ defmodule ZeroAuthWeb.OAuthControllerTest do
     } do
       # Create authorization code
       {:ok, auth_code} =
-        ZeroAuth.OIDC.Authorization.create_authorization_code(
+        Authorization.create_authorization_code(
           client,
           user,
           "http://localhost:3000/callback",
@@ -140,7 +142,7 @@ defmodule ZeroAuthWeb.OAuthControllerTest do
     } do
       # Create access token
       {:ok, access_token} =
-        ZeroAuth.OIDC.Token.create_access_token(client, user, ["openid"])
+        Token.create_access_token(client, user, ["openid"])
 
       conn =
         post(conn, "/oauth/token", %{
@@ -165,7 +167,7 @@ defmodule ZeroAuthWeb.OAuthControllerTest do
       user: user
     } do
       {:ok, access_token} =
-        ZeroAuth.OIDC.Token.create_access_token(client, user, ["openid", "profile"])
+        Token.create_access_token(client, user, ["openid", "profile"])
 
       conn =
         conn
@@ -202,4 +204,3 @@ defmodule ZeroAuthWeb.OAuthControllerTest do
     end
   end
 end
-
