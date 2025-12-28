@@ -1,0 +1,12 @@
+.git
+.gitignore
+README.md
+.env
+.env.local
+node_modules
+tmp
+log
+*.log
+.DS_Store
+coverage
+.byebug_history
