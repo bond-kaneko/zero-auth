@@ -11,9 +11,12 @@ Things you may want to cover:
 
 * Configuration
 
-* Database creation
-
 * Database initialization
+
+```sh
+docker compose exec web bin/rails db:create
+docker compose exec web bin/rails db:migrate
+```
 
 * How to run the test suite
 
