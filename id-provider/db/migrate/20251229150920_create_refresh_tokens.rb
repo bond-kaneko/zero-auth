@@ -11,7 +11,5 @@ class CreateRefreshTokens < ActiveRecord::Migration[7.1]
       t.datetime :revoked_at
       t.timestamps
     end
-    
-    add_index :refresh_tokens, :token
   end
 end

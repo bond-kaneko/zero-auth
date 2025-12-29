@@ -10,7 +10,5 @@ class CreateAccessTokens < ActiveRecord::Migration[7.1]
       t.datetime :expires_at, null: false
       t.timestamps
     end
-    
-    add_index :access_tokens, :token
   end
 end
