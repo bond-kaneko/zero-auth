@@ -19,16 +19,20 @@ FROM base as build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev libvips pkg-config
+    apt-get install --no-install-recommends -y build-essential git libpq-dev libvips libyaml-dev pkg-config
 
 # Install application gems
 COPY Gemfile Gemfile.lock ./
-RUN bundle install && \
+RUN BUNDLE_DEPLOYMENT=0 bundle lock --remove-platform aarch64-linux-musl && \
+    bundle lock --add-platform aarch64-linux && \
+    bundle install && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
-    bundle exec bootsnap precompile --gemfile
+    bundle exec bootsnap precompile --gemfile && \
+    cp Gemfile.lock /tmp/Gemfile.lock.updated
 
 # Copy application code
 COPY . .
+RUN cp /tmp/Gemfile.lock.updated Gemfile.lock
 
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
