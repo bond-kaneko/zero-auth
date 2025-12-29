@@ -7,6 +7,7 @@ class CreateClients < ActiveRecord::Migration[7.1]
       t.text :redirect_uris, array: true, default: []
       t.text :grant_types, array: true, default: []
       t.text :response_types, array: true, default: []
+      t.text :scopes, array: true, default: []
       t.string :client_uri
       t.string :logo_uri
       t.string :policy_uri
