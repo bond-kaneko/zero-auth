@@ -1,27 +1,27 @@
-# README
+# ID Provider
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+OpenID Connect Identity Provider (認証サーバー)
 
-Things you may want to cover:
+## セットアップ
 
-* Ruby version
+詳細はプロジェクトルートの [README.md](../README.md) を参照してください。
 
-* System dependencies
+### クイックスタート
 
-* Configuration
+1. SSL証明書が生成されていることを確認（プロジェクトルートの `ssl/` ディレクトリ）
+2. `/etc/hosts` に `id-provider.local` が設定されていることを確認
+3. 環境変数ファイル `.env` を作成（必要に応じて）
+4. 起動:
 
-* Database initialization
+```bash
+docker compose up
+```
 
-```sh
+5. アクセス: `https://id-provider.local:3443`
+
+## データベースのセットアップ
+
+```bash
 docker compose exec web bin/rails db:create
 docker compose exec web bin/rails db:migrate
 ```
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...

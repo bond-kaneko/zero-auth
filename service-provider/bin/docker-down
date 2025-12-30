@@ -1,7 +1,0 @@
-#!/bin/bash
-# bin/docker-down
-
-set -e
-
-docker stop service-provider-web 2>/dev/null || true
-docker rm service-provider-web 2>/dev/null || true

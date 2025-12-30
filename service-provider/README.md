@@ -1,24 +1,35 @@
-# README
+# Service Provider
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+OpenID Connect Client (サービスプロバイダー)
 
-Things you may want to cover:
+## セットアップ
 
-* Ruby version
+詳細はプロジェクトルートの [README.md](../README.md) を参照してください。
 
-* System dependencies
+### クイックスタート
 
-* Configuration
+1. SSL証明書が生成されていることを確認（プロジェクトルートの `ssl/` ディレクトリ）
+2. `/etc/hosts` に `service-provider.local` が設定されていることを確認
+3. 環境変数ファイル `.env` を作成:
 
-* Database creation
+```env
+RAILS_ENV=development
+OIDC_ISSUER=https://id-provider.local:3443
+OIDC_CLIENT_ID=your_client_id
+OIDC_CLIENT_SECRET=your_client_secret
+OIDC_REDIRECT_URI=https://service-provider.local:3444/auth/callback
+```
 
-* Database initialization
+4. 起動:
 
-* How to run the test suite
+```bash
+docker compose up
+```
 
-* Services (job queues, cache servers, search engines, etc.)
+5. アクセス: `https://service-provider.local:3444`
 
-* Deployment instructions
+## 認証フロー
 
-* ...
+1. `/auth/login` にアクセス
+2. id-providerにリダイレクト
+3. 認証後、`/auth/callback` でコールバックを受け取る
