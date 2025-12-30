@@ -1,0 +1,22 @@
+#!/bin/bash
+# bin/docker-up
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+docker build -f Dockerfile.dev -t service-provider:dev .
+docker stop service-provider-web 2>/dev/null || true
+docker rm service-provider-web 2>/dev/null || true
+
+docker run -d \
+  --name service-provider-web \
+  -p 3001:3001 \
+  -v "$(pwd):/app" \
+  --env-file .env \
+  -e RAILS_ENV=development \
+  -e OIDC_ISSUER=http://host.docker.internal:3000 \
+  --add-host=host.docker.internal:host-gateway \
+  service-provider:dev
+
+echo "Service Provider is running on http://localhost:3001"
