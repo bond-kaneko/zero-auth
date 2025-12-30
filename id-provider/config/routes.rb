@@ -1,10 +1,21 @@
+# config/routes.rb
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  # OIDC endpoints
+  namespace :oidc do
+    get '/.well-known/openid-configuration', to: 'well_known#configuration'
+    get '/authorize', to: 'authorization#new'
+    post '/authorize', to: 'authorization#create'
+    post '/token', to: 'token#create'
+    get '/userinfo', to: 'user_info#show'
+    post '/userinfo', to: 'user_info#show'
+    get '/jwks', to: 'jwks#index'
+  end
+
+  # Session management
+  resources :sessions, only: [:new, :create, :destroy]
+  get '/login', to: 'sessions#new', as: :login
+  post '/logout', to: 'sessions#destroy', as: :logout
 end
