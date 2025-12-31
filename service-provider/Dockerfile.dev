@@ -1,8 +1,7 @@
-# Development Dockerfile for service-provider
 ARG RUBY_VERSION=3.2.9
 FROM ruby:$RUBY_VERSION-slim
 
-# Install dependencies required for Rails development
+# Install dependencies + ca-certificates
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     build-essential \
@@ -11,24 +10,31 @@ RUN apt-get update -qq && \
     libvips \
     libyaml-dev \
     pkg-config \
-    curl && \
+    curl \
+    ca-certificates && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Set working directory
 WORKDIR /app
+
+# Copy mkcert root CA certificate
+COPY ssl/rootCA.pem /usr/local/share/ca-certificates/mkcert-root.crt
+
+# Update CA certificates
+RUN update-ca-certificates
 
 # Set development environment
 ENV RAILS_ENV=development \
     BUNDLE_PATH=/usr/local/bundle
 
 # Copy Gemfile and Gemfile.lock
-COPY Gemfile Gemfile.lock ./
+COPY service-provider/Gemfile service-provider/Gemfile.lock ./
 
 # Install gems
 RUN bundle install
 
 # Copy application code
-COPY . .
+COPY service-provider/ .
 
 # Expose port 3001
 EXPOSE 3001
