@@ -93,4 +93,7 @@ Rails.application.configure do
 
   # ローカルホスト許可
   config.hosts << "id-provider.local"
+
+  # Originチェック無効化
+  config.action_controller.forgery_protection_origin_check = false
 end
