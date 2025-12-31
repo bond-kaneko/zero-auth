@@ -114,7 +114,7 @@ class Oidc::AuthorizationController < Oidc::ApplicationController
     unless current_user
       # ログイン後に戻ってくるためのパラメータを保存
       session[:return_to] = request.url
-      redirect_to login_path
+      redirect_to login_url
     end
   end
 
