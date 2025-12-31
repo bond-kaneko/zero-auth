@@ -16,6 +16,7 @@ Rails.application.configure do
   # Host Authorization設定（カスタムドメインを許可）
   config.hosts << "id-provider.local"
   config.hosts << "service-provider.local"
+  config.hosts << "host.docker.internal"
 
   # Show full error reports.
   config.consider_all_requests_local = true

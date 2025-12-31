@@ -3,9 +3,11 @@ Rails.application.routes.draw do
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # OIDC well-known endpoint (must be at root level per OIDC spec)
+  get '/.well-known/openid-configuration', to: 'oidc/well_known#configuration'
+
   # OIDC endpoints
   namespace :oidc do
-    get '/.well-known/openid-configuration', to: 'well_known#configuration'
     get '/authorize', to: 'authorization#new'
     post '/authorize', to: 'authorization#create'
     post '/token', to: 'token#create'
