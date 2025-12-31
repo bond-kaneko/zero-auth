@@ -40,6 +40,10 @@ mkcert id-provider.local service-provider.local
 
 # 生成されたファイルを確認
 # id-provider.local+1.pem と id-provider.local+1-key.pem が生成される
+
+# mkcertのルート証明書をコピー（Dockerコンテナで証明書検証を行うため）
+cp "$(mkcert -CAROOT)/rootCA.pem" .
+cd ..
 ```
 
 ### 3. /etc/hostsの設定
@@ -105,6 +109,16 @@ docker compose up
 - **service-provider**: `https://service-provider.local:3444`
 
 nginxがリバースプロキシとして動作し、SSL終端を行います。
+
+### Dockerコンテナでの証明書検証
+
+`service-provider`は起動時に`id-provider`のOIDC Discovery（`/.well-known/openid-configuration`）にHTTPSでアクセスします。Dockerコンテナ内でmkcertの自己署名証明書を信頼させるため、以下の対応を行っています：
+
+1. mkcertのルート証明書（`rootCA.pem`）を`ssl/`ディレクトリにコピー
+2. Dockerfile内でルート証明書をコンテナの`/usr/local/share/ca-certificates/`にコピー
+3. `update-ca-certificates`コマンドでシステムのCA証明書ストアに追加
+
+この仕組みにより、コンテナ内のRailsアプリケーションが`https://id-provider.local:3443`に安全にアクセスできます。
 
 ## データベースのセットアップ
 
