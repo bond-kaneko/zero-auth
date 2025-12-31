@@ -1,17 +1,25 @@
-# app/controllers/sessions_controller.rb
 class SessionsController < ApplicationController
   def new
     # ログインフォームを表示
-    render plain: "Login page (not implemented)"
+    @return_to = session[:return_to]
   end
 
   def create
-    # ログイン処理
-    render json: { error: "not_implemented" }, status: :not_implemented
+    user = User.find_by(email: params[:email])
+    
+    if user&.authenticate(params[:password])
+      session[:user_id] = user.id
+      redirect_to = session.delete(:return_to) || root_path
+      redirect_to redirect_to, notice: 'ログインしました'
+    else
+      flash.now[:alert] = 'メールアドレスまたはパスワードが正しくありません'
+      @return_to = session[:return_to]
+      render :new, status: :unprocessable_entity
+    end
   end
 
   def destroy
-    # ログアウト処理
-    render json: { error: "not_implemented" }, status: :not_implemented
+    session.delete(:user_id)
+    redirect_to root_path, notice: 'ログアウトしました'
   end
 end

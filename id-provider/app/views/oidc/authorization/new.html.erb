@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>認可確認</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      h1 {
+        margin-top: 0;
+        color: #333;
+      }
+      .client-info {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 20px 0;
+      }
+      .client-name {
+        font-weight: bold;
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+      .scopes {
+        margin: 20px 0;
+      }
+      .scope-item {
+        padding: 8px;
+        margin: 5px 0;
+        background: #e8f4f8;
+        border-left: 3px solid #2196F3;
+        border-radius: 2px;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+      }
+      .btn {
+        flex: 1;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+      }
+      .btn-approve {
+        background: #4CAF50;
+        color: white;
+      }
+      .btn-approve:hover {
+        background: #45a049;
+      }
+      .btn-deny {
+        background: #f44336;
+        color: white;
+      }
+      .btn-deny:hover {
+        background: #da190b;
+      }
+      form {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>認可確認</h1>
+      
+      <p>以下のアプリケーションがあなたのアカウントへのアクセスを要求しています：</p>
+      
+      <div class="client-info">
+        <div class="client-name"><%= @client.name || @client.client_id %></div>
+        <% if @client.client_uri.present? %>
+          <a href="<%= @client.client_uri %>" target="_blank" rel="noopener noreferrer">
+            <%= @client.client_uri %>
+          </a>
+        <% end %>
+      </div>
+      
+      <div class="scopes">
+        <p><strong>要求されている権限：</strong></p>
+        <% @scopes.each do |scope| %>
+          <div class="scope-item">
+            <%= scope_description(scope) %>
+          </div>
+        <% end %>
+      </div>
+      
+      <div class="actions">
+        <%= form_with url: oidc_authorize_path, method: :post, local: true do |f| %>
+          <%= hidden_field_tag :approve, 'true' %>
+          <%= f.submit '承認', class: 'btn btn-approve' %>
+        <% end %>
+        
+        <%= form_with url: oidc_authorize_path, method: :post, local: true do |f| %>
+          <%= hidden_field_tag :approve, 'false' %>
+          <%= f.submit '拒否', class: 'btn btn-deny' %>
+        <% end %>
+      </div>
+    </div>
+  </body>
+</html>
