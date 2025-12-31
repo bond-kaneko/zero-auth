@@ -12,11 +12,6 @@ class Client < ApplicationRecord
   before_validation :generate_client_id, on: :create
   before_validation :generate_client_secret, on: :create
   
-  serialize :redirect_uris, Array
-  serialize :grant_types, Array
-  serialize :response_types, Array
-  serialize :scopes, Array
-  
   def valid_redirect_uri?(uri)
     redirect_uris.include?(uri)
   end
