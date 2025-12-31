@@ -1,7 +1,7 @@
 # app/controllers/oidc/well_known_controller.rb
 class Oidc::WellKnownController < Oidc::ApplicationController
   def configuration
-    issuer = request.base_url.gsub(/\/$/, '')
+    issuer = ENV.fetch('OIDC_ISSUER', 'https://id-provider.local:3443')
     
     render json: {
       issuer: issuer,
@@ -14,6 +14,5 @@ class Oidc::WellKnownController < Oidc::ApplicationController
       id_token_signing_alg_values_supported: ["RS256"],
       scopes_supported: ["openid", "profile", "email"]
     }
-  end
   end
 end
