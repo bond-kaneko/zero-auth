@@ -83,4 +83,14 @@ Rails.application.configure do
 
   config.force_ssl = false  # nginxでSSL終端するのでfalse
   config.assume_ssl = true  # nginxからのX-Forwarded-Protoを信頼
+
+  # URL生成時のデフォルト設定
+  config.action_controller.default_url_options = {
+    host: 'id-provider.local',
+    port: 3443,
+    protocol: 'https'
+  }
+
+  # ローカルホスト許可
+  config.hosts << "id-provider.local"
 end
