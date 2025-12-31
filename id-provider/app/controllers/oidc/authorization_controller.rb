@@ -89,7 +89,7 @@ class Oidc::AuthorizationController < Oidc::ApplicationController
   end
 
   def find_client
-    @found_client = Client.find_by(client_id: params[:client_id])
+    @found_client = ClientRepository.find_by_client_id(params[:client_id])
     
     unless @found_client
       return render_error('invalid_client', 'Invalid client_id')
