@@ -43,7 +43,6 @@ module Oidc
         error: error_code,
         error_description: error_description,
       }, status: :bad_request
-      false
     end
 
     def authenticate_client
@@ -117,7 +116,7 @@ module Oidc
 
       return true if computed_challenge == @authorization_code.code_challenge
 
-      return render_error('invalid_grant', 'Invalid code_verifier')
+      render_error('invalid_grant', 'Invalid code_verifier')
     end
 
     def generate_tokens
