@@ -1,24 +1,23 @@
 # frozen_string_literal: true
 
-# app/controllers/oidc/authorization_controller.rb
 module Oidc
   class AuthorizationController < Oidc::ApplicationController
     include Oidc::AuthorizationValidations
 
-    before_action :validate_authorization_params, only: [:new]
+    before_action :check_authorization_params, only: [:new]
     before_action :find_client, only: [:new]
     before_action :load_client, only: [:create]
     before_action :require_login, only: %i[new create]
 
     def new
-      # 認可確認画面を表示
-      @client = @found_client
-      @scopes = parse_scopes(params[:scope])
-      @state = params[:state]
-      @nonce = params[:nonce]
-      @redirect_uri = params[:redirect_uri]
+      requested_scopes = parse_scopes(params[:scope])
+      existing_consent = current_user.user_consents.valid.find_by(client: @found_client)
 
-      save_authorization_params_to_session
+      if existing_consent&.covers_scopes?(requested_scopes)
+        auto_approve_authorization
+      else
+        show_consent_screen(requested_scopes)
+      end
     end
 
     def create
@@ -34,26 +33,15 @@ module Oidc
 
     private
 
-    def validate_authorization_params
-      validate_required_params || validate_response_type || validate_scope
+    def check_authorization_params
+      error = validate_required_params || validate_response_type || validate_scope
+      render_error(error[:code], error[:description]) if error
     end
 
     def find_client
       @found_client = Client.find_by(client_id: params[:client_id])
-
-      return render_error('invalid_client', 'Invalid client_id') unless @found_client
-
-      return render_error('invalid_client', 'Client is not active') unless @found_client.active?
-
-      # redirect_uriの検証
-      unless @found_client.valid_redirect_uri?(params[:redirect_uri])
-        return render_error('invalid_request', 'Invalid redirect_uri')
-      end
-
-      # response_typeの検証
-      return if @found_client.supports_response_type?(params[:response_type])
-
-      render_error('unsupported_response_type', 'Client does not support this response_type')
+      error = validate_client(@found_client)
+      render_error(error[:code], error[:description]) if error
     end
 
     def load_client
@@ -63,28 +51,16 @@ module Oidc
       render json: { error: 'invalid_request', error_description: 'Session expired' }, status: :bad_request
     end
 
-    def require_login
-      return if current_user
-
-      # ログイン後に戻ってくるためのパラメータを保存
-      session[:return_to] = request.url
-      redirect_to login_url
-    end
-
-    def current_user
-      @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
-    end
-
     def save_authorization_params_to_session
       session[:authorization_params] = {
-        client_id: params[:client_id],
-        redirect_uri: params[:redirect_uri],
-        response_type: params[:response_type],
-        scope: params[:scope],
-        state: params[:state],
-        nonce: params[:nonce],
-        code_challenge: params[:code_challenge],
-        code_challenge_method: params[:code_challenge_method],
+        'client_id' => params[:client_id],
+        'redirect_uri' => params[:redirect_uri],
+        'response_type' => params[:response_type],
+        'scope' => params[:scope],
+        'state' => params[:state],
+        'nonce' => params[:nonce],
+        'code_challenge' => params[:code_challenge],
+        'code_challenge_method' => params[:code_challenge_method],
       }
     end
 
@@ -95,6 +71,7 @@ module Oidc
         session[:authorization_params],
       )
       authorization_code = generator.generate
+      record_user_consent
 
       build_approval_redirect_uri(authorization_code)
     end
@@ -116,6 +93,32 @@ module Oidc
         state: session[:authorization_params]['state'],
       )
       redirect_uri
+    end
+
+    def record_user_consent
+      requested_scopes = parse_scopes(session[:authorization_params]['scope'])
+      consent = current_user.user_consents.find_or_initialize_by(client: @found_client)
+      consent.scopes = requested_scopes
+      consent.expires_at = nil
+      consent.save!
+    end
+
+    def auto_approve_authorization
+      save_authorization_params_to_session
+      generator = Oidc::AuthorizationCodeGenerator.new(current_user, @found_client, session[:authorization_params])
+      authorization_code = generator.generate
+      redirect_uri = build_approval_redirect_uri(authorization_code)
+      session.delete(:authorization_params)
+      redirect_to redirect_uri.to_s, allow_other_host: true
+    end
+
+    def show_consent_screen(requested_scopes)
+      @client = @found_client
+      @scopes = requested_scopes
+      @state = params[:state]
+      @nonce = params[:nonce]
+      @redirect_uri = params[:redirect_uri]
+      save_authorization_params_to_session
     end
   end
 end

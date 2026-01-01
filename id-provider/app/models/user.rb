@@ -8,6 +8,7 @@ class User < ApplicationRecord
   has_many :authorization_codes, dependent: :destroy
   has_many :access_tokens, dependent: :destroy
   has_many :refresh_tokens, dependent: :destroy
+  has_many :user_consents, dependent: :destroy
 
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :sub, presence: true, uniqueness: true

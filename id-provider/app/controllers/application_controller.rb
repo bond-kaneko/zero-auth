@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
   def require_login
     return if logged_in?
 
-    session[:return_to] = request.fullpath
-    redirect_to login_path, alert: 'ログインが必要です'
+    session[:return_to] = request.url
+    redirect_to login_url
   end
 end

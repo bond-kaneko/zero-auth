@@ -4,6 +4,7 @@ class Client < ApplicationRecord
   has_many :authorization_codes, dependent: :destroy
   has_many :access_tokens, dependent: :destroy
   has_many :refresh_tokens, dependent: :destroy
+  has_many :user_consents, dependent: :destroy
 
   validates :client_id, presence: true, uniqueness: true
   validates :client_secret, presence: true

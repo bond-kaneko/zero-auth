@@ -7,11 +7,14 @@ module Oidc
     private
 
     def validate_required_params
-      return render_error('invalid_request', 'Missing required parameter: client_id') if params[:client_id].blank?
-      return render_error('invalid_request', 'Missing required parameter: redirect_uri') if params[:redirect_uri].blank?
-
+      if params[:client_id].blank?
+        return { code: 'invalid_request', description: 'Missing required parameter: client_id' }
+      end
+      if params[:redirect_uri].blank?
+        return { code: 'invalid_request', description: 'Missing required parameter: redirect_uri' }
+      end
       if params[:response_type].blank?
-        return render_error('invalid_request', 'Missing required parameter: response_type')
+        return { code: 'invalid_request', description: 'Missing required parameter: response_type' }
       end
 
       nil
@@ -20,13 +23,24 @@ module Oidc
     def validate_response_type
       return nil if params[:response_type] == 'code'
 
-      render_error('unsupported_response_type', 'Only "code" response type is supported')
+      { code: 'unsupported_response_type', description: 'Only "code" response type is supported' }
     end
 
     def validate_scope
       return nil unless params[:scope].blank? || params[:scope].exclude?('openid')
 
-      render_error('invalid_scope', 'The "openid" scope is required')
+      { code: 'invalid_scope', description: 'The "openid" scope is required' }
+    end
+
+    def validate_client(client)
+      return { code: 'invalid_client', description: 'Invalid client_id' } unless client
+      return { code: 'invalid_client', description: 'Client is not active' } unless client.active?
+      unless client.valid_redirect_uri?(params[:redirect_uri])
+        return { code: 'invalid_request', description: 'Invalid redirect_uri' }
+      end
+      return nil if client.supports_response_type?(params[:response_type])
+
+      { code: 'unsupported_response_type', description: 'Client does not support this response_type' }
     end
 
     def parse_scopes(scope_string)
