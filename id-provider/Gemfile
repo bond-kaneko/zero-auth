@@ -61,6 +61,12 @@ group :development do
   # File change detection for live reloading
   gem "listen"
 
+  # Code quality and linting tools
+  gem "rubocop", require: false
+  gem "rubocop-rails", require: false
+  gem "rubocop-performance", require: false
+  gem "rubocop-rspec", require: false
+
   # Add speed badges [https://github.com/MiniProfiler/rack-mini-profiler]
   # gem "rack-mini-profiler"
 
