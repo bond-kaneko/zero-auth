@@ -1,4 +1,4 @@
-require:
+plugins:
   - rubocop-rails
   - rubocop-performance
   - rubocop-rspec
@@ -105,3 +105,12 @@ RSpec/MultipleExpectations:
 
 RSpec/NestedGroups:
   Max: 5
+
+RSpec/AnyInstance:
+  Enabled: false
+
+# Rails specific rules
+Rails/Exit:
+  Exclude:
+    - 'spec/rails_helper.rb'
+    - 'spec/spec_helper.rb'

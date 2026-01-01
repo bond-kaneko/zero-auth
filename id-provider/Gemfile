@@ -55,8 +55,9 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'debug', platforms: %i[mri windows]
 
-  # Pin minitest to 5.x for Rails 7.1 compatibility
-  gem 'minitest', '~> 5.0'
+  # RSpec testing framework
+  gem 'factory_bot_rails', '~> 6.4.0'
+  gem 'rspec-rails', '~> 6.1.0'
 end
 
 group :development do

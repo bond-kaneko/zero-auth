@@ -4,7 +4,7 @@ require 'test_helper'
 
 module Oidc
   class AuthorizationControllerTest < ActionDispatch::IntegrationTest
-    setup do
+    def setup
       @user = users(:one)
       @client = clients(:active_client)
     end
@@ -13,7 +13,9 @@ module Oidc
       post login_url, params: { email: user.email, password: 'Password123' }
     end
 
-    test 'new redirects to login when not authenticated' do
+    # GET /oidc/authorize (new action)
+
+    test 'redirects to login when not authenticated' do
       get oidc_authorize_url, params: {
         client_id: @client.client_id,
         redirect_uri: 'https://example.com/callback',
@@ -24,7 +26,7 @@ module Oidc
       assert_redirected_to login_url
     end
 
-    test 'new auto-approves when user has existing consent covering requested scopes' do
+    test 'auto-approves when user has existing consent covering requested scopes' do
       login_as(@user)
 
       get oidc_authorize_url, params: {
@@ -39,7 +41,7 @@ module Oidc
       assert_match(/state=test-state/, response.location)
     end
 
-    test 'new shows consent screen when no existing consent' do
+    test 'shows consent screen when no existing consent' do
       login_as(users(:two))
 
       get oidc_authorize_url, params: {
@@ -54,7 +56,7 @@ module Oidc
       assert_select 'form'
     end
 
-    test 'new shows consent screen when requested scopes exceed existing consent' do
+    test 'shows consent screen when requested scopes exceed existing consent' do
       login_as(@user)
 
       get oidc_authorize_url, params: {
@@ -69,14 +71,16 @@ module Oidc
       assert_select 'form'
     end
 
-    test 'create returns error when not authenticated' do
+    # POST /oidc/authorize (create action)
+
+    test 'returns error when not authenticated' do
       post oidc_authorize_url, params: { approve: 'true' }
 
       assert_response :bad_request
       assert_includes response.body, 'Session expired'
     end
 
-    test 'create handles approval and redirects with authorization code' do
+    test 'handles approval and redirects with authorization code' do
       login_as(users(:two))
 
       get oidc_authorize_url, params: {
@@ -98,7 +102,7 @@ module Oidc
       assert_includes consent.scopes, 'profile'
     end
 
-    test 'create handles denial and redirects with error' do
+    test 'handles denial and redirects with error' do
       login_as(users(:two))
 
       get oidc_authorize_url, params: {
@@ -116,7 +120,7 @@ module Oidc
       assert_redirected_to expected_url
     end
 
-    test 'create returns error when session expired' do
+    test 'returns error when session expired' do
       login_as(@user)
 
       post oidc_authorize_url, params: { approve: 'true' }
@@ -126,7 +130,7 @@ module Oidc
       assert_includes response.body, 'Session expired'
     end
 
-    test 'create clears authorization params from session after redirect' do
+    test 'clears authorization params from session after redirect' do
       login_as(users(:two))
 
       get oidc_authorize_url, params: {
@@ -143,7 +147,9 @@ module Oidc
       assert_nil session[:authorization_params]
     end
 
-    test 'destroy clears session and redirects to post_logout_redirect_uri with state' do
+    # GET /oidc/logout (destroy action)
+
+    test 'clears session and redirects to post_logout_redirect_uri with state' do
       login_as(@user)
 
       get oidc_logout_url, params: {
@@ -155,7 +161,7 @@ module Oidc
       assert_redirected_to 'https://example.com/logged-out?state=logout-state'
     end
 
-    test 'destroy clears session and redirects to post_logout_redirect_uri without state' do
+    test 'clears session and redirects to post_logout_redirect_uri without state' do
       login_as(@user)
 
       get oidc_logout_url, params: {
@@ -166,7 +172,7 @@ module Oidc
       assert_redirected_to 'https://example.com/logged-out'
     end
 
-    test 'destroy clears session and redirects to root when no post_logout_redirect_uri' do
+    test 'clears session and redirects to root when no post_logout_redirect_uri' do
       login_as(@user)
 
       get oidc_logout_url

@@ -15,11 +15,15 @@ end
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require 'rails/test_help'
+require 'minitest/spec'
 
 module ActiveSupport
   class TestCase
-    # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors)
+    # Remove conflicting describe method if it exists and enable Minitest::Spec DSL
+    class << self
+      remove_method :describe if method_defined?(:describe)
+    end
+    extend Minitest::Spec::DSL
 
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all

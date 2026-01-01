@@ -1,0 +1,36 @@
+# frozen_string_literal: true
+
+valid_code:
+  code: valid-auth-code-123
+  user: one
+  client: active_client
+  redirect_uri: https://example.com/callback
+  scopes:
+    - openid
+    - profile
+    - email
+  nonce: test-nonce
+  expires_at: <%= 10.minutes.from_now %>
+  used: false
+
+expired_code:
+  code: expired-auth-code-456
+  user: one
+  client: active_client
+  redirect_uri: https://example.com/callback
+  scopes:
+    - openid
+  nonce: null
+  expires_at: <%= 10.minutes.ago %>
+  used: false
+
+used_code:
+  code: used-auth-code-789
+  user: one
+  client: active_client
+  redirect_uri: https://example.com/callback
+  scopes:
+    - openid
+  nonce: null
+  expires_at: <%= 10.minutes.from_now %>
+  used: true
