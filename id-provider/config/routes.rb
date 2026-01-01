@@ -29,7 +29,11 @@ Rails.application.routes.draw do
 
   # Management namespace for admin features
   namespace :management do
-    resources :clients, only: [:index]
+    resources :clients, only: [:index, :show] do
+      member do
+        post :revoke_secret
+      end
+    end
   end
 
   # Root path (fallback for direct access to IdP)

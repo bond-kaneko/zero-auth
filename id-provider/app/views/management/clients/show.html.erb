@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>クライアント詳細</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      h1 {
+        margin-top: 0;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      h2 {
+        color: #333;
+        font-size: 18px;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #2196F3;
+      }
+      .status {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .status-active {
+        background: #e8f5e9;
+        color: #2e7d32;
+      }
+      .status-inactive {
+        background: #ffebee;
+        color: #c62828;
+      }
+      .info-section {
+        margin-bottom: 30px;
+      }
+      .info-grid {
+        display: grid;
+        gap: 20px;
+      }
+      .info-item {
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 4px;
+      }
+      .info-label {
+        font-size: 12px;
+        color: #666;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+      }
+      .info-value {
+        font-size: 14px;
+        color: #333;
+        word-break: break-all;
+      }
+      .info-value.code {
+        font-family: monospace;
+        background: white;
+        padding: 8px;
+        border-radius: 3px;
+        border: 1px solid #ddd;
+      }
+      .info-value.secret {
+        position: relative;
+      }
+      .secret-text {
+        filter: blur(4px);
+        user-select: none;
+        transition: filter 0.2s;
+      }
+      .secret-text.revealed {
+        filter: none;
+        user-select: text;
+      }
+      .reveal-btn {
+        margin-top: 8px;
+        margin-right: 8px;
+        padding: 6px 12px;
+        background: #757575;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .reveal-btn:hover {
+        background: #616161;
+      }
+      .revoke-btn {
+        margin-top: 8px;
+        padding: 6px 12px;
+        background: #f44336;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .revoke-btn:hover {
+        background: #d32f2f;
+      }
+      .list-items {
+        margin: 0;
+        padding-left: 0;
+        list-style: none;
+      }
+      .list-items li {
+        padding: 8px;
+        background: white;
+        margin-bottom: 6px;
+        border-radius: 3px;
+        border: 1px solid #ddd;
+        font-family: monospace;
+        font-size: 13px;
+      }
+      .empty-state {
+        color: #999;
+        font-style: italic;
+      }
+      .btn {
+        padding: 10px 20px;
+        background: #757575;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        display: inline-block;
+      }
+      .btn:hover {
+        background: #616161;
+      }
+      .actions {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+      }
+      .alert {
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+        background: #ffebee;
+        color: #c62828;
+      }
+      .notice {
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+        background: #e8f5e9;
+        color: #2e7d32;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>
+        <%= @client.name || '（名前未設定）' %>
+        <span class="status <%= @client.active ? 'status-active' : 'status-inactive' %>">
+          <%= @client.active ? '有効' : '無効' %>
+        </span>
+      </h1>
+
+      <% if flash[:alert] %>
+        <div class="alert"><%= flash[:alert] %></div>
+      <% end %>
+
+      <% if flash[:notice] %>
+        <div class="notice"><%= flash[:notice] %></div>
+      <% end %>
+
+      <div class="info-section">
+        <h2>認証情報</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Client ID</div>
+            <div class="info-value code"><%= @client.client_id %></div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Client Secret</div>
+            <div class="info-value code secret">
+              <span class="secret-text" id="secretText"><%= @client.client_secret %></span>
+              <div>
+                <button class="reveal-btn" onclick="toggleSecret()">表示/非表示</button>
+                <form id="revoke-secret-form" action="<%= revoke_secret_management_client_path(@client) %>" method="post" style="display: inline;">
+                  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+                  <button type="button" class="revoke-btn" onclick="confirmRevoke()">Secretを再生成</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h2>基本情報</h2>
+        <div class="info-grid">
+          <% if @client.client_uri.present? %>
+            <div class="info-item">
+              <div class="info-label">Client URI</div>
+              <div class="info-value"><a href="<%= @client.client_uri %>" target="_blank"><%= @client.client_uri %></a></div>
+            </div>
+          <% end %>
+          <% if @client.logo_uri.present? %>
+            <div class="info-item">
+              <div class="info-label">Logo URI</div>
+              <div class="info-value"><a href="<%= @client.logo_uri %>" target="_blank"><%= @client.logo_uri %></a></div>
+            </div>
+          <% end %>
+          <% if @client.policy_uri.present? %>
+            <div class="info-item">
+              <div class="info-label">Privacy Policy URI</div>
+              <div class="info-value"><a href="<%= @client.policy_uri %>" target="_blank"><%= @client.policy_uri %></a></div>
+            </div>
+          <% end %>
+          <% if @client.tos_uri.present? %>
+            <div class="info-item">
+              <div class="info-label">Terms of Service URI</div>
+              <div class="info-value"><a href="<%= @client.tos_uri %>" target="_blank"><%= @client.tos_uri %></a></div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h2>OAuth 2.0 / OIDC 設定</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Redirect URIs</div>
+            <% if @client.redirect_uris.any? %>
+              <ul class="list-items">
+                <% @client.redirect_uris.each do |uri| %>
+                  <li><%= uri %></li>
+                <% end %>
+              </ul>
+            <% else %>
+              <div class="info-value empty-state">未設定</div>
+            <% end %>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Grant Types</div>
+            <% if @client.grant_types.any? %>
+              <ul class="list-items">
+                <% @client.grant_types.each do |type| %>
+                  <li><%= type %></li>
+                <% end %>
+              </ul>
+            <% else %>
+              <div class="info-value empty-state">未設定</div>
+            <% end %>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Response Types</div>
+            <% if @client.response_types.any? %>
+              <ul class="list-items">
+                <% @client.response_types.each do |type| %>
+                  <li><%= type %></li>
+                <% end %>
+              </ul>
+            <% else %>
+              <div class="info-value empty-state">未設定</div>
+            <% end %>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Scopes</div>
+            <% if @client.scopes.any? %>
+              <ul class="list-items">
+                <% @client.scopes.each do |scope| %>
+                  <li><%= scope %></li>
+                <% end %>
+              </ul>
+            <% else %>
+              <div class="info-value empty-state">未設定</div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h2>タイムスタンプ</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">作成日時</div>
+            <div class="info-value"><%= @client.created_at.strftime('%Y年%m月%d日 %H:%M:%S') %></div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">更新日時</div>
+            <div class="info-value"><%= @client.updated_at.strftime('%Y年%m月%d日 %H:%M:%S') %></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <%= link_to '← 一覧に戻る', management_clients_path, class: 'btn' %>
+      </div>
+    </div>
+
+    <script>
+      function toggleSecret() {
+        const secretText = document.getElementById('secretText');
+        secretText.classList.toggle('revealed');
+      }
+
+      function confirmRevoke() {
+        const message = '本当にClient Secretを再生成しますか？\n\n' +
+                       '現在のSecretは無効になり、このクライアントを使用しているアプリケーションは認証できなくなります。\n\n' +
+                       '新しいSecretは再生成後に一度だけ表示されますので、必ず保存してください。';
+
+        if (confirm(message)) {
+          document.getElementById('revoke-secret-form').submit();
+        }
+      }
+    </script>
+  </body>
+</html>
