@@ -1,14 +1,15 @@
+# frozen_string_literal: true
+
 module Management
   class ClientsController < ApplicationController
     before_action :require_login
-    before_action :set_client, only: [:show, :revoke_secret]
+    before_action :set_client, only: %i[show revoke_secret]
 
     def index
       @clients = Client.order(created_at: :desc)
     end
 
-    def show
-    end
+    def show; end
 
     def revoke_secret
       @client.client_secret = SecureRandom.hex(32)

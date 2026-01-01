@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::Base
   private
 
@@ -12,10 +14,9 @@ class ApplicationController < ActionController::Base
   helper_method :logged_in?
 
   def require_login
-    unless logged_in?
-      session[:return_to] = request.fullpath
-      redirect_to login_path, alert: 'ログインが必要です'
-    end
+    return if logged_in?
+
+    session[:return_to] = request.fullpath
+    redirect_to login_path, alert: 'ログインが必要です'
   end
 end
-

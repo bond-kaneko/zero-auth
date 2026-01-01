@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SessionsController < ApplicationController
   def new
     # ログインフォームを表示
@@ -6,7 +8,7 @@ class SessionsController < ApplicationController
 
   def create
     user = User.find_by(email: params[:email])
-    
+
     if user&.authenticate(params[:password])
       session[:user_id] = user.id
       redirect_path = session.delete(:return_to) || user_path
@@ -14,7 +16,7 @@ class SessionsController < ApplicationController
     else
       flash.now[:alert] = 'メールアドレスまたはパスワードが正しくありません'
       @return_to = session[:return_to]
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 

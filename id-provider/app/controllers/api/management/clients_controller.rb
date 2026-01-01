@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 module Api
   module Management
     class ClientsController < ApplicationController
       skip_before_action :verify_authenticity_token
       before_action :require_login
-      before_action :set_client, only: [:show, :update, :destroy, :revoke_secret]
+      before_action :set_client, only: %i[show update destroy revoke_secret]
 
       # GET /api/management/clients
       def index
@@ -24,7 +26,7 @@ module Api
         if @client.save
           render json: @client, status: :created
         else
-          render json: { errors: @client.errors.full_messages }, status: :unprocessable_entity
+          render json: { errors: @client.errors.full_messages }, status: :unprocessable_content
         end
       end
 
@@ -33,7 +35,7 @@ module Api
         if @client.update(client_params)
           render json: @client
         else
-          render json: { errors: @client.errors.full_messages }, status: :unprocessable_entity
+          render json: { errors: @client.errors.full_messages }, status: :unprocessable_content
         end
       end
 
@@ -50,7 +52,7 @@ module Api
         if @client.save
           render json: @client
         else
-          render json: { errors: @client.errors.full_messages }, status: :unprocessable_entity
+          render json: { errors: @client.errors.full_messages }, status: :unprocessable_content
         end
       end
 
