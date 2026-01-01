@@ -25,6 +25,8 @@ Rails.application.routes.draw do
   resources :registrations, only: [:new, :create]
   get '/signup', to: 'registrations#new', as: :signup
 
+  resource :user, only: [:show]
+
   # Root path (fallback for direct access to IdP)
   root 'sessions#new'
 end

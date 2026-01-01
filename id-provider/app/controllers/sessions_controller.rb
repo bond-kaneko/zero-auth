@@ -9,7 +9,7 @@ class SessionsController < ApplicationController
     
     if user&.authenticate(params[:password])
       session[:user_id] = user.id
-      redirect_path = session.delete(:return_to) || root_path
+      redirect_path = session.delete(:return_to) || user_path
       redirect_to redirect_path, notice: 'ログインしました'
     else
       flash.now[:alert] = 'メールアドレスまたはパスワードが正しくありません'
