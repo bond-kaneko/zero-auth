@@ -28,23 +28,12 @@ class Oidc::AuthorizationController < Oidc::ApplicationController
 
   def create
     if params[:approve] == 'true'
-      # デバッグログ
-      Rails.logger.info "=== DEBUG: Authorization Code Creation ==="
-      Rails.logger.info "scope from session: #{session[:authorization_params]["scope"].inspect}"
-      parsed_scopes = parse_scopes(session[:authorization_params]["scope"])
-      Rails.logger.info "parsed_scopes: #{parsed_scopes.inspect}"
-      Rails.logger.info "redirect_uri: #{session[:authorization_params]["redirect_uri"].inspect}"
-      Rails.logger.info "nonce: #{session[:authorization_params]["nonce"].inspect}"
-      Rails.logger.info "code_challenge: #{session[:authorization_params]["code_challenge"].inspect}"
-      Rails.logger.info "code_challenge_method: #{session[:authorization_params]["code_challenge_method"].inspect}"
-      Rails.logger.info "========================================="
-
       # 認可コードを生成
       authorization_code = AuthorizationCode.create!(
         user: current_user,
         client: @found_client,
         redirect_uri: session[:authorization_params]["redirect_uri"],
-        scopes: parsed_scopes,
+        scopes: parse_scopes(session[:authorization_params]["scope"]),
         nonce: session[:authorization_params]["nonce"],
         code_challenge: session[:authorization_params]["code_challenge"],
         code_challenge_method: session[:authorization_params]["code_challenge_method"]

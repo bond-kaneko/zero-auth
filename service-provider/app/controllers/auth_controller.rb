@@ -11,7 +11,7 @@ class AuthController < ApplicationController
   
   def callback
     if params[:state] != session[:oidc_state]
-      return redirect_to root_path, alert: 'Invalid state parameter'
+      return redirect_to root_url, alert: 'Invalid state parameter'
     end
 
     access_token = oidc_client.authorize!(code: params[:code])
@@ -21,7 +21,7 @@ class AuthController < ApplicationController
     session[:access_token] = access_token.access_token
     session[:user_info] = userinfo.raw_attributes
     
-    redirect_to root_path
+    redirect_to root_url
   end
 
   private

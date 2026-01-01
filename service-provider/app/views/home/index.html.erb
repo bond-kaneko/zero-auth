@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+  <html>
+  <head>
+    <title>Home - Service Provider</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .card {
+        background: white;
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      h1 {
+        color: #333;
+        margin-top: 0;
+      }
+      .user-info {
+        background: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 15px;
+        margin: 20px 0;
+      }
+      .user-info dt {
+        font-weight: bold;
+        color: #555;
+        margin-top: 10px;
+      }
+      .user-info dd {
+        margin: 5px 0 0 20px;
+        color: #333;
+      }
+      .token-info {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        margin: 20px 0;
+        font-size: 14px;
+      }
+      .token-info code {
+        background: #fff;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 12px;
+        word-break: break-all;
+      }
+      .success-message {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="success-message">
+        ✅ Successfully authenticated via OpenID Connect!
+      </div>
+
+      <h1>Welcome to Service Provider</h1>
+
+      <% if session[:user_info] %>
+        <div class="user-info">
+          <h2>User Information</h2>
+          <dl>
+            <dt>Subject (sub)</dt>
+            <dd><%= session[:user_info]['sub'] %></dd>
+
+            <% if session[:user_info]['name'] %>
+              <dt>Name</dt>
+              <dd><%= session[:user_info]['name'] %></dd>
+            <% end %>
+
+            <% if session[:user_info]['given_name'] %>
+              <dt>Given Name</dt>
+              <dd><%= session[:user_info]['given_name'] %></dd>
+            <% end %>
+
+            <% if session[:user_info]['family_name'] %>
+              <dt>Family Name</dt>
+              <dd><%= session[:user_info]['family_name'] %></dd>
+            <% end %>
+
+            <% if session[:user_info]['email'] %>
+              <dt>Email</dt>
+              <dd>
+                <%= session[:user_info]['email'] %>
+                <% if session[:user_info]['email_verified'] %>
+                  <span style="color: #28a745;">✓ Verified</span>
+                <% else %>
+                  <span style="color: #dc3545;">✗ Not Verified</span>
+                <% end %>
+              </dd>
+            <% end %>
+
+            <% if session[:user_info]['picture'] %>
+              <dt>Picture</dt>
+              <dd><img src="<%= session[:user_info]['picture'] %>" alt="Profile Picture" style="max-width: 100px; border-radius: 50%;"></dd>
+            <% end %>
+          </dl>
+        </div>
+
+        <div class="token-info">
+          <h3>Access Token</h3>
+          <p><code><%= session[:access_token] %></code></p>
+          <p style="margin-top: 10px; color: #856404;">
+            This token can be used to access protected resources on behalf of the user.
+          </p>
+        </div>
+
+        <div style="margin-top: 30px;">
+          <a href="<%= auth_login_path %>" style="color: #007bff; text-decoration: none;">← Back to Login</a>
+        </div>
+      <% else %>
+        <p>You are not logged in.</p>
+        <a href="<%= auth_login_path %>">Login with OpenID Connect</a>
+      <% end %>
+    </div>
+  </body>
