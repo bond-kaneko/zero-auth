@@ -32,29 +32,29 @@ class Oidc::AuthorizationController < Oidc::ApplicationController
       authorization_code = AuthorizationCode.create!(
         user: current_user,
         client: @found_client,
-        redirect_uri: session[:authorization_params][:redirect_uri],
-        scopes: parse_scopes(session[:authorization_params][:scope]),
-        nonce: session[:authorization_params][:nonce],
-        code_challenge: session[:authorization_params][:code_challenge],
-        code_challenge_method: session[:authorization_params][:code_challenge_method]
+        redirect_uri: session[:authorization_params]["redirect_uri"],
+        scopes: parse_scopes(session[:authorization_params]["scope"]),
+        nonce: session[:authorization_params]["nonce"],
+        code_challenge: session[:authorization_params]["code_challenge"],
+        code_challenge_method: session[:authorization_params]["code_challenge_method"]
       )
       
       # リダイレクトURIに認可コードを付与してリダイレクト
-      redirect_uri = URI.parse(session[:authorization_params][:redirect_uri])
+      redirect_uri = URI.parse(session[:authorization_params]["redirect_uri"])
       redirect_uri.query = build_query_string(
         code: authorization_code.code,
-        state: session[:authorization_params][:state]
+        state: session[:authorization_params]["state"]
       )
       
       session.delete(:authorization_params)
       redirect_to redirect_uri.to_s, allow_other_host: true
     else
       # ユーザーが拒否した場合
-      redirect_uri = URI.parse(session[:authorization_params][:redirect_uri])
+      redirect_uri = URI.parse(session[:authorization_params]["redirect_uri"])
       redirect_uri.query = build_query_string(
         error: 'access_denied',
         error_description: 'The user denied the request',
-        state: session[:authorization_params][:state]
+        state: session[:authorization_params]["state"]
       )
       
       session.delete(:authorization_params)
