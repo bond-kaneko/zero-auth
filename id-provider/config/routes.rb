@@ -20,4 +20,11 @@ Rails.application.routes.draw do
   resources :sessions, only: [:new, :create, :destroy]
   get '/login', to: 'sessions#new', as: :login
   post '/logout', to: 'sessions#destroy', as: :logout
+
+  # User registration
+  resources :registrations, only: [:new, :create]
+  get '/signup', to: 'registrations#new', as: :signup
+
+  # Root path (fallback for direct access to IdP)
+  root 'sessions#new'
 end
