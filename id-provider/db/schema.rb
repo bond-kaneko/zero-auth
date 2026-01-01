@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_29_150920) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_01_115543) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -85,6 +85,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_29_150920) do
     t.index ["user_id"], name: "index_refresh_tokens_on_user_id"
   end
 
+  create_table "user_consents", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "client_id", null: false
+    t.text "scopes"
+    t.datetime "expires_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_id"], name: "index_user_consents_on_client_id"
+    t.index ["user_id"], name: "index_user_consents_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "sub", null: false
     t.string "email", null: false
@@ -108,4 +119,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_29_150920) do
   add_foreign_key "refresh_tokens", "access_tokens"
   add_foreign_key "refresh_tokens", "clients"
   add_foreign_key "refresh_tokens", "users"
+  add_foreign_key "user_consents", "clients"
+  add_foreign_key "user_consents", "users"
 end

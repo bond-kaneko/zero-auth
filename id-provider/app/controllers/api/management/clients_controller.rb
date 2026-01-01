@@ -4,7 +4,6 @@ module Api
   module Management
     class ClientsController < ApplicationController
       skip_before_action :verify_authenticity_token
-      before_action :require_login
       before_action :set_client, only: %i[show update destroy revoke_secret]
 
       # GET /api/management/clients
