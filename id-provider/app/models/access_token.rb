@@ -10,17 +10,11 @@ class AccessToken < ApplicationRecord
     before_validation :generate_token, on: :create
     before_validation :set_expires_at, on: :create
     
-    serialize :scopes, coder: JSON
-    
     scope :valid, -> { where('expires_at > ?', Time.current) }
     scope :expired, -> { where('expires_at <= ?', Time.current) }
     
     def expired?
       expires_at <= Time.current
-    end
-    
-    def valid?
-      !expired?
     end
     
     def has_scope?(scope)

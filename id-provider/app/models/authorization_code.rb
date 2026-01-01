@@ -10,9 +10,6 @@ class AuthorizationCode < ApplicationRecord
     before_validation :generate_code, on: :create
     before_validation :set_expires_at, on: :create
     
-    serialize :scopes, coder: JSON
-    serialize :nonce, coder: JSON
-    
     scope :valid, -> { where(used: false).where('expires_at > ?', Time.current) }
     scope :expired, -> { where('expires_at <= ?', Time.current) }
     

@@ -15,7 +15,7 @@ class AuthController < ApplicationController
     end
 
     access_token = oidc_client.authorize!(code: params[:code])
-    userinfo = oidc_client.userinfo(access_token: access_token)
+    userinfo = access_token.userinfo!
     
     # セッションに保存
     session[:access_token] = access_token.access_token

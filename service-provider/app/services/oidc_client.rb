@@ -23,8 +23,4 @@ class OidcClient
     @client.authorization_code = code
     @client.access_token!
   end
-
-  def userinfo(access_token:)
-    @client.userinfo!(access_token: access_token)
-  end
 end
