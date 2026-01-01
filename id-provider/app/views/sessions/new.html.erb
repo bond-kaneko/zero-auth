@@ -80,7 +80,7 @@
         <div class="notice"><%= flash[:notice] %></div>
       <% end %>
       
-      <%= form_with url: sessions_path, local: true do |f| %>
+      <%= form_with url: login_path, local: true do |f| %>
         <div class="field">
           <%= f.label :email, "メールアドレス" %>
           <%= f.email_field :email, required: true, autofocus: true %>
