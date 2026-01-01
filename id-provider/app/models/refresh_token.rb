@@ -10,7 +10,7 @@ class RefreshToken < ApplicationRecord
     before_validation :generate_token, on: :create
     before_validation :set_expires_at, on: :create
     
-    serialize :scopes, Array
+    serialize :scopes, coder: JSON
     
     scope :valid, -> { where(revoked: false).where('expires_at > ?', Time.current) }
     scope :expired, -> { where('expires_at <= ?', Time.current) }
