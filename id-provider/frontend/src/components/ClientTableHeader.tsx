@@ -1,4 +1,4 @@
-export function ClientTableHeader() {
+export function ClientTableHeader(): JSX.Element {
   return (
     <thead className="bg-gray-50">
       <tr>
@@ -16,6 +16,5 @@ export function ClientTableHeader() {
         </th>
       </tr>
     </thead>
-  );
+  )
 }
-

@@ -1,9 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import HomePage from '~/pages/HomePage';
-import ClientsPage from '~/pages/ClientsPage';
-import ClientDetailPage from '~/pages/ClientDetailPage';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
-function App() {
+import ClientDetailPage from '~/pages/ClientDetailPage'
+import ClientsPage from '~/pages/ClientsPage'
+import HomePage from '~/pages/HomePage'
+
+function App(): JSX.Element {
   return (
     <BrowserRouter>
       <Routes>
@@ -13,7 +14,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
-  );
+  )
 }
 
-export default App;
+export default App

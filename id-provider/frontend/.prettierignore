@@ -1,0 +1,27 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+build
+.next
+out
+
+# Generated files
+*.min.js
+*.min.css
+
+# Cache
+.cache
+.parcel-cache
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea

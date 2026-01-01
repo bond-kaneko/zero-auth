@@ -1,5 +1,5 @@
 // Base API client using fetch
-const API_BASE_URL = '/api';
+const API_BASE_URL = '/api'
 
 export class ApiError extends Error {
   constructor(
@@ -7,58 +7,57 @@ export class ApiError extends Error {
     public statusText: string,
     message?: string
   ) {
-    super(message || `API Error: ${status} ${statusText}`);
-    this.name = 'ApiError';
+    super(message ?? `API Error: ${String(status)} ${statusText}`)
+    this.name = 'ApiError'
   }
 }
 
 interface RequestOptions extends RequestInit {
-  params?: Record<string, string | number | boolean>;
+  params?: Record<string, string | number | boolean>
 }
 
-async function request<T>(
-  endpoint: string,
-  options: RequestOptions = {}
-): Promise<T> {
-  const { params, ...fetchOptions } = options;
+async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+  const { params, ...fetchOptions } = options
 
   // Build URL with query parameters
-  let url = `${API_BASE_URL}${endpoint}`;
+  let url = `${API_BASE_URL}${endpoint}`
   if (params) {
-    const searchParams = new URLSearchParams();
+    const searchParams = new URLSearchParams()
     Object.entries(params).forEach(([key, value]) => {
-      searchParams.append(key, String(value));
-    });
-    url += `?${searchParams.toString()}`;
+      searchParams.append(key, String(value))
+    })
+    url += `?${searchParams.toString()}`
   }
 
   // Set default headers
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    ...fetchOptions.headers,
-  };
+    ...(fetchOptions.headers as Record<string, string>),
+  }
 
   try {
     const response = await fetch(url, {
       ...fetchOptions,
       headers,
-    });
+    })
 
     if (!response.ok) {
-      throw new ApiError(response.status, response.statusText);
+      throw new ApiError(response.status, response.statusText)
     }
 
     // Handle empty responses (204 No Content, etc.)
     if (response.status === 204 || response.headers.get('content-length') === '0') {
-      return null as T;
+      return null as T
     }
 
-    return await response.json();
+    const data: unknown = await response.json()
+    return data as T
   } catch (error) {
     if (error instanceof ApiError) {
-      throw error;
+      throw error
     }
-    throw new Error(`Network error: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    throw new Error(`Network error: ${errorMessage}`)
   }
 }
 
@@ -89,4 +88,4 @@ export const apiClient = {
 
   delete: <T>(endpoint: string, options?: RequestOptions) =>
     request<T>(endpoint, { ...options, method: 'DELETE' }),
-};
+}
