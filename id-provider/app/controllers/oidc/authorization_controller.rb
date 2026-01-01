@@ -2,7 +2,8 @@
 
 module Oidc
   class AuthorizationController < Oidc::ApplicationController
-    include Oidc::AuthorizationValidations
+    include Oidc::RequestValidation
+    include Oidc::ClientValidations
 
     before_action :check_authorization_params, only: [:new]
     before_action :find_client, only: [:new]
@@ -12,7 +13,6 @@ module Oidc
     def new
       requested_scopes = parse_scopes(params[:scope])
       existing_consent = current_user.user_consents.valid.find_by(client: @found_client)
-
       if existing_consent&.covers_scopes?(requested_scopes)
         auto_approve_authorization
       else
@@ -26,7 +26,6 @@ module Oidc
                      else
                        handle_authorization_denial
                      end
-
       session.delete(:authorization_params)
       redirect_to redirect_uri.to_s, allow_other_host: true
     end
@@ -72,7 +71,6 @@ module Oidc
       )
       authorization_code = generator.generate
       record_user_consent
-
       build_approval_redirect_uri(authorization_code)
     end
 

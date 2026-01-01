@@ -1,0 +1,11 @@
+# frozen_string_literal: true
+
+one:
+  sub: user1-sub-id
+  email: user1@example.com
+  password_digest: <%= BCrypt::Password.create('Password123') %>
+
+two:
+  sub: user2-sub-id
+  email: user2@example.com
+  password_digest: <%= BCrypt::Password.create('Password123') %>

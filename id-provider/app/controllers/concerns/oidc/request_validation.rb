@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Oidc
-  module AuthorizationValidations
+  module RequestValidation
     extend ActiveSupport::Concern
 
     private
@@ -21,26 +21,19 @@ module Oidc
     end
 
     def validate_response_type
-      return nil if params[:response_type] == 'code'
+      if params[:response_type] != 'code'
+        return { code: 'unsupported_response_type', description: 'Only "code" response type is supported' }
+      end
 
-      { code: 'unsupported_response_type', description: 'Only "code" response type is supported' }
+      nil
     end
 
     def validate_scope
-      return nil unless params[:scope].blank? || params[:scope].exclude?('openid')
-
-      { code: 'invalid_scope', description: 'The "openid" scope is required' }
-    end
-
-    def validate_client(client)
-      return { code: 'invalid_client', description: 'Invalid client_id' } unless client
-      return { code: 'invalid_client', description: 'Client is not active' } unless client.active?
-      unless client.valid_redirect_uri?(params[:redirect_uri])
-        return { code: 'invalid_request', description: 'Invalid redirect_uri' }
+      if params[:scope].blank? || params[:scope].exclude?('openid')
+        return { code: 'invalid_scope', description: 'The "openid" scope is required' }
       end
-      return nil if client.supports_response_type?(params[:response_type])
 
-      { code: 'unsupported_response_type', description: 'Client does not support this response_type' }
+      nil
     end
 
     def parse_scopes(scope_string)

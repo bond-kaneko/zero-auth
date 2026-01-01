@@ -10,7 +10,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
 
   test 'should create user and login' do
     assert_difference('User.count', 1) do
-      post registrations_url, params: {
+      post signup_url, params: {
         user: {
           email: 'newuser@example.com',
           password: 'Password123',
@@ -26,7 +26,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
 
   test 'should not create user with invalid email' do
     assert_no_difference('User.count') do
-      post registrations_url, params: {
+      post signup_url, params: {
         user: {
           email: 'invalid-email',
           password: 'Password123',
@@ -40,7 +40,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
 
   test 'should not create user with mismatched password' do
     assert_no_difference('User.count') do
-      post registrations_url, params: {
+      post signup_url, params: {
         user: {
           email: 'test@example.com',
           password: 'Password123',

@@ -1,0 +1,32 @@
+# frozen_string_literal: true
+
+active_client:
+  name: Test Client
+  client_id: test-client-id
+  client_secret: test-client-secret
+  redirect_uris:
+    - https://example.com/callback
+  scopes:
+    - openid
+    - profile
+    - email
+  grant_types:
+    - authorization_code
+    - refresh_token
+  response_types:
+    - code
+  active: true
+
+inactive_client:
+  name: Inactive Client
+  client_id: inactive-client-id
+  client_secret: inactive-client-secret
+  redirect_uris:
+    - https://inactive.com/callback
+  scopes:
+    - openid
+  grant_types:
+    - authorization_code
+  response_types:
+    - code
+  active: false

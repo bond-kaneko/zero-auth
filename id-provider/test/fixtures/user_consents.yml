@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+user_one_consent:
+  user: one
+  client: active_client
+  scopes: ["openid", "profile", "email"]
+  expires_at: null
