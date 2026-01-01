@@ -3,40 +3,19 @@
 # app/controllers/oidc/user_info_controller.rb
 module Oidc
   class UserInfoController < Oidc::ApplicationController
+    include Oidc::BearerTokenValidation
+
     def show
-      return unless extract_bearer_token
-      return unless verify_access_token
+      error = extract_bearer_token
+      return render_error(error[:code], error[:description]) if error
+
+      error = verify_access_token
+      return render_error(error[:code], error[:description]) if error
 
       render json: build_userinfo_response
     end
 
     private
-
-    def extract_bearer_token
-      # Authorization: Bearer <token> から取得
-      auth_header = request.headers['Authorization']
-
-      unless auth_header&.start_with?('Bearer ')
-        return render_error('invalid_token', 'Missing or invalid Authorization header')
-      end
-
-      @token_value = auth_header.sub('Bearer ', '').strip
-
-      return render_error('invalid_token', 'Missing access token') if @token_value.blank?
-
-      true
-    end
-
-    def verify_access_token
-      @access_token = AccessToken.find_by(token: @token_value)
-
-      return render_error('invalid_token', 'Invalid access token') unless @access_token
-
-      # 有効期限チェック
-      return render_error('invalid_token', 'Access token has expired') if @access_token.expired?
-
-      true
-    end
 
     def build_userinfo_response
       user = @access_token.user
