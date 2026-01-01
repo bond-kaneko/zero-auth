@@ -6,36 +6,36 @@ Rails.application.routes.draw do
   # OIDC well-known endpoint (must be at root level per OIDC spec)
   get '/.well-known/openid-configuration', to: 'oidc/well_known#configuration'
 
-  # OIDC endpoints
+  # OIDC endpoints (standard paths per OIDC/OAuth 2.0 specification)
   namespace :oidc do
-    get '/authorize', to: 'authorization#new'
-    post '/authorize', to: 'authorization#create'
-    post '/token', to: 'token#create'
-    get '/userinfo', to: 'user_info#show'
-    post '/userinfo', to: 'user_info#show'
-    get '/jwks', to: 'jwks#index'
+    get '/authorize', to: 'authorization#new'       # HTML: authorization page
+    post '/authorize', to: 'authorization#create'   # Form submission
+    post '/token', to: 'token#create'               # JSON API: token exchange
+    get '/userinfo', to: 'user_info#show'           # JSON API: user info
+    post '/userinfo', to: 'user_info#show'          # JSON API: user info (POST)
+    get '/jwks', to: 'jwks#index'                   # JSON API: public keys
   end
 
-  # Session management
-  resources :sessions, only: [:new, :create, :destroy]
-  get '/login', to: 'sessions#new', as: :login
-  post '/logout', to: 'sessions#destroy', as: :logout
+  # JSON API endpoints for React SPA
+  namespace :api do
+    # Session management for IdP itself
+    resources :sessions, only: [:create, :destroy]
+    post '/login', to: 'sessions#create'
+    delete '/logout', to: 'sessions#destroy'
 
-  # User registration
-  resources :registrations, only: [:new, :create]
-  get '/signup', to: 'registrations#new', as: :signup
+    # User registration
+    resources :registrations, only: [:create]
 
-  resource :user, only: [:show]
+    # Current user info
+    resource :user, only: [:show]
 
-  # Management namespace for admin features
-  namespace :management do
-    resources :clients, only: [:index, :show] do
-      member do
-        post :revoke_secret
+    # Management API for admin features
+    namespace :management do
+      resources :clients, only: [:index, :show, :create, :update, :destroy] do
+        member do
+          post :revoke_secret
+        end
       end
     end
   end
-
-  # Root path (fallback for direct access to IdP)
-  root 'sessions#new'
 end
