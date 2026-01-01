@@ -38,6 +38,19 @@ services:
       DATABASE_NAME: id_provider_development
       RAILS_ENV: development
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: id-provider-frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    expose:
+      - "5173"
+    environment:
+      NODE_ENV: development
+
   nginx:
     image: nginx:alpine
     container_name: id-provider-nginx
@@ -49,6 +62,7 @@ services:
       - ./nginx/id-provider.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - web
+      - frontend
 
 volumes:
   postgres_data:
