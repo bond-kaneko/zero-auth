@@ -73,4 +73,12 @@ Rails.application.configure do
 
   config.force_ssl = false  # nginxでSSL終端するのでfalse
   config.assume_ssl = true  # nginxからのX-Forwarded-Protoを信頼
+
+  # プロキシを信頼してX-Forwarded-*ヘッダーを正しく処理
+  # Docker内部ネットワークのIPアドレス範囲を信頼
+  config.action_dispatch.trusted_proxies = [
+    '172.16.0.0/12',  # Docker default bridge network
+    '192.168.0.0/16', # Private network
+    '10.0.0.0/8',     # Private network
+  ]
 end

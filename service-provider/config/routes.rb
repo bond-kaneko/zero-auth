@@ -5,4 +5,5 @@ Rails.application.routes.draw do
 
   get '/auth/login', to: 'auth#login'
   get '/auth/callback', to: 'auth#callback'
+  delete '/auth/logout', to: 'auth#logout'
 end

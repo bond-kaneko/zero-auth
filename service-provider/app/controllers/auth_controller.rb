@@ -1,4 +1,5 @@
 class AuthController < ApplicationController
+  skip_before_action :verify_authenticity_token, only: [:logout]
   def login
     state = SecureRandom.hex(16)
     nonce = SecureRandom.hex(16)
@@ -16,12 +17,22 @@ class AuthController < ApplicationController
 
     access_token = oidc_client.authorize!(code: params[:code])
     userinfo = access_token.userinfo!
-    
+
     # セッションに保存
     session[:access_token] = access_token.access_token
     session[:user_info] = userinfo.raw_attributes
-    
+
     redirect_to root_url
+  end
+
+  def logout
+    # セッションをクリア
+    session.delete(:access_token)
+    session.delete(:user_info)
+    session.delete(:oidc_state)
+    session.delete(:oidc_nonce)
+
+    redirect_to root_url, notice: 'Successfully logged out'
   end
 
   private
