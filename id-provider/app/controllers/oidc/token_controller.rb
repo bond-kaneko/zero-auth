@@ -4,9 +4,8 @@
 module Oidc
   class TokenController < Oidc::ApplicationController
     def create
-      return unless validate_token_params
-      return unless authenticate_client
-      return unless verify_authorization_code
+      error = validate_token_params || authenticate_client || verify_authorization_code
+      return render_error(error[:code], error[:description]) if error
 
       tokens = generate_tokens
 
@@ -27,15 +26,18 @@ module Oidc
     def validate_token_params
       # grant_typeチェック
       unless params[:grant_type] == 'authorization_code'
-        return render_error('unsupported_grant_type', 'Only authorization_code grant type is supported')
+        return { code: 'unsupported_grant_type', description: 'Only authorization_code grant type is supported' }
       end
 
       # 必須パラメータチェック
-      return render_error('invalid_request', 'Missing required parameter: code') if params[:code].blank?
+      return { code: 'invalid_request', description: 'Missing required parameter: code' } if params[:code].blank?
 
-      return render_error('invalid_request', 'Missing required parameter: redirect_uri') if params[:redirect_uri].blank?
+      if params[:redirect_uri].blank?
+        return { code: 'invalid_request',
+                 description: 'Missing required parameter: redirect_uri' }
+      end
 
-      true
+      nil
     end
 
     def render_error(error_code, error_description)
@@ -51,13 +53,13 @@ module Oidc
 
       @client = Client.find_by(client_id: client_id)
 
-      return render_error('invalid_client', 'Invalid client_id') unless @client
+      return { code: 'invalid_client', description: 'Invalid client_id' } unless @client
 
-      return render_error('invalid_client', 'Client is not active') unless @client.active?
+      return { code: 'invalid_client', description: 'Client is not active' } unless @client.active?
 
-      return render_error('invalid_client', 'Invalid client_secret') unless @client.authenticate(client_secret)
+      return { code: 'invalid_client', description: 'Invalid client_secret' } unless @client.authenticate(client_secret)
 
-      true
+      nil
     end
 
     def extract_client_credentials
@@ -74,34 +76,37 @@ module Oidc
     def verify_authorization_code
       @authorization_code = AuthorizationCode.find_by(code: params[:code])
 
-      return render_error('invalid_grant', 'Invalid authorization code') unless @authorization_code
+      return { code: 'invalid_grant', description: 'Invalid authorization code' } unless @authorization_code
 
       # 有効期限チェック
-      return render_error('invalid_grant', 'Authorization code has expired') if @authorization_code.expired?
+      return { code: 'invalid_grant', description: 'Authorization code has expired' } if @authorization_code.expired?
 
       # 使用済みチェック
-      return render_error('invalid_grant', 'Authorization code has already been used') if @authorization_code.used
+      if @authorization_code.used
+        return { code: 'invalid_grant',
+                 description: 'Authorization code has already been used' }
+      end
 
       # クライアント一致チェック
       unless @authorization_code.client_id == @client.id
-        return render_error('invalid_grant', 'Authorization code was issued to another client')
+        return { code: 'invalid_grant', description: 'Authorization code was issued to another client' }
       end
 
       # redirect_uri一致チェック
       unless @authorization_code.redirect_uri == params[:redirect_uri]
-        return render_error('invalid_grant', 'Redirect URI does not match')
+        return { code: 'invalid_grant', description: 'Redirect URI does not match' }
       end
 
       # PKCE検証（code_challengeがある場合）
       return verify_pkce_challenge if @authorization_code.code_challenge.present?
 
-      true
+      nil
     end
 
     def verify_pkce_challenge
       code_verifier = params[:code_verifier]
 
-      return render_error('invalid_request', 'Missing code_verifier for PKCE') if code_verifier.blank?
+      return { code: 'invalid_request', description: 'Missing code_verifier for PKCE' } if code_verifier.blank?
 
       # S256の場合: BASE64URL(SHA256(code_verifier))
       computed_challenge = if @authorization_code.code_challenge_method == 'S256'
@@ -114,9 +119,9 @@ module Oidc
                              code_verifier
                            end
 
-      return true if computed_challenge == @authorization_code.code_challenge
+      return nil if computed_challenge == @authorization_code.code_challenge
 
-      render_error('invalid_grant', 'Invalid code_verifier')
+      { code: 'invalid_grant', description: 'Invalid code_verifier' }
     end
 
     def generate_tokens
