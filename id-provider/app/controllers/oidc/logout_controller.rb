@@ -1,12 +1,7 @@
 # frozen_string_literal: true
 
 module Oidc
-  # OIDC RP-Initiated Logout endpoint
-  # Handles logout requests from Relying Parties
-  class LogoutController < ApplicationController
-    # Skip CSRF protection for OIDC logout endpoint
-    skip_before_action :verify_authenticity_token
-
+  class LogoutController < Oidc::ApplicationController
     def destroy
       # Clear the user session
       reset_session
