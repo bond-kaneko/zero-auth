@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { clientsApi } from '~/api/clients';
 import type { Client } from '~/types/client';
+import { ClientTableHeader } from '~/components/ClientTableHeader';
+import { ClientTableRow } from '~/components/ClientTableRow';
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -70,43 +72,10 @@ export default function ClientsPage() {
           {!loading && !error && clients.length > 0 && (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Client ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Redirect URI
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Created
-                    </th>
-                  </tr>
-                </thead>
+                <ClientTableHeader />
                 <tbody className="bg-white divide-y divide-gray-200">
                   {clients.map((client) => (
-                    <tr key={client.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        <Link
-                          to={`/clients/${client.id}`}
-                          className="text-blue-600 hover:text-blue-800 hover:underline"
-                        >
-                          {client.name}
-                        </Link>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                        {client.client_id}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {client.redirect_uri}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(client.created_at).toLocaleDateString()}
-                      </td>
-                    </tr>
+                    <ClientTableRow key={client.id} client={client} />
                   ))}
                 </tbody>
               </table>
