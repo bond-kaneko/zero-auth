@@ -3,6 +3,7 @@ export interface Client {
   name: string;
   redirect_uri: string;
   client_id: string;
+  client_secret: string;
   created_at: string;
   updated_at: string;
 }
