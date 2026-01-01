@@ -20,10 +20,6 @@ class AuthorizationCode < ApplicationRecord
       expires_at <= Time.current
     end
     
-    def valid?
-      !used && !expired?
-    end
-    
     def use!
       update!(used: true, used_at: Time.current)
     end
