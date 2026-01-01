@@ -42,26 +42,28 @@ module Oidc
       user = @access_token.user
       scopes = @access_token.scopes || []
 
-      # sub（subject）は必須
-      response = {
-        sub: user.sub,
-      }
+      response = { sub: user.sub }
 
-      # profileスコープ
-      if scopes.include?('profile')
-        response[:name] = user.name if user.name.present?
-        response[:given_name] = user.given_name if user.given_name.present?
-        response[:family_name] = user.family_name if user.family_name.present?
-        response[:picture] = user.picture if user.picture.present?
-      end
-
-      # emailスコープ
-      if scopes.include?('email')
-        response[:email] = user.email if user.email.present?
-        response[:email_verified] = user.email_verified
-      end
+      add_profile_claims(response, user, scopes)
+      add_email_claims(response, user, scopes)
 
       response
+    end
+
+    def add_profile_claims(response, user, scopes)
+      return unless scopes.include?('profile')
+
+      response[:name] = user.name if user.name.present?
+      response[:given_name] = user.given_name if user.given_name.present?
+      response[:family_name] = user.family_name if user.family_name.present?
+      response[:picture] = user.picture if user.picture.present?
+    end
+
+    def add_email_claims(response, user, scopes)
+      return unless scopes.include?('email')
+
+      response[:email] = user.email if user.email.present?
+      response[:email_verified] = user.email_verified
     end
 
     def render_error(error_code, error_description)

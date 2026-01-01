@@ -3,6 +3,8 @@
 # app/controllers/oidc/authorization_controller.rb
 module Oidc
   class AuthorizationController < Oidc::ApplicationController
+    include Oidc::AuthorizationValidations
+
     before_action :validate_authorization_params, only: [:new]
     before_action :find_client, only: [:new]
     before_action :load_client, only: [:create]
@@ -16,49 +18,16 @@ module Oidc
       @nonce = params[:nonce]
       @redirect_uri = params[:redirect_uri]
 
-      # 認可パラメータをセッションに保存（POST時に使用）
-      session[:authorization_params] = {
-        client_id: params[:client_id],
-        redirect_uri: params[:redirect_uri],
-        response_type: params[:response_type],
-        scope: params[:scope],
-        state: params[:state],
-        nonce: params[:nonce],
-        code_challenge: params[:code_challenge],
-        code_challenge_method: params[:code_challenge_method],
-      }
+      save_authorization_params_to_session
     end
 
     def create
-      if params[:approve] == 'true'
-        # 認可コードを生成
-        authorization_code = AuthorizationCode.create!(
-          user: current_user,
-          client: @found_client,
-          redirect_uri: session[:authorization_params]['redirect_uri'],
-          scopes: parse_scopes(session[:authorization_params]['scope']),
-          nonce: session[:authorization_params]['nonce'],
-          code_challenge: session[:authorization_params]['code_challenge'],
-          code_challenge_method: session[:authorization_params]['code_challenge_method'],
-        )
+      redirect_uri = if params[:approve] == 'true'
+                       handle_authorization_approval
+                     else
+                       handle_authorization_denial
+                     end
 
-        # リダイレクトURIに認可コードを付与してリダイレクト
-        redirect_uri = URI.parse(session[:authorization_params]['redirect_uri'])
-        redirect_uri.query = build_query_string(
-          code: authorization_code.code,
-          state: session[:authorization_params]['state'],
-        )
-
-      else
-        # ユーザーが拒否した場合
-        redirect_uri = URI.parse(session[:authorization_params]['redirect_uri'])
-        redirect_uri.query = build_query_string(
-          error: 'access_denied',
-          error_description: 'The user denied the request',
-          state: session[:authorization_params]['state'],
-        )
-
-      end
       session.delete(:authorization_params)
       redirect_to redirect_uri.to_s, allow_other_host: true
     end
@@ -66,25 +35,7 @@ module Oidc
     private
 
     def validate_authorization_params
-      # 必須パラメータのチェック
-      return render_error('invalid_request', 'Missing required parameter: client_id') if params[:client_id].blank?
-
-      return render_error('invalid_request', 'Missing required parameter: redirect_uri') if params[:redirect_uri].blank?
-
-      if params[:response_type].blank?
-        return render_error('invalid_request',
-                            'Missing required parameter: response_type')
-      end
-
-      # response_typeの検証（現在はcodeのみサポート）
-      unless params[:response_type] == 'code'
-        return render_error('unsupported_response_type', 'Only "code" response type is supported')
-      end
-
-      # scopeの検証（openidは必須）
-      return unless params[:scope].blank? || params[:scope].exclude?('openid')
-
-      render_error('invalid_scope', 'The "openid" scope is required')
+      validate_required_params || validate_response_type || validate_scope
     end
 
     def find_client
@@ -124,32 +75,47 @@ module Oidc
       @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
     end
 
-    def parse_scopes(scope_string)
-      return [] if scope_string.blank?
-
-      scope_string.split.compact
+    def save_authorization_params_to_session
+      session[:authorization_params] = {
+        client_id: params[:client_id],
+        redirect_uri: params[:redirect_uri],
+        response_type: params[:response_type],
+        scope: params[:scope],
+        state: params[:state],
+        nonce: params[:nonce],
+        code_challenge: params[:code_challenge],
+        code_challenge_method: params[:code_challenge_method],
+      }
     end
 
-    def build_query_string(params_hash)
-      params_hash.compact.map { |k, v| "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}" }.join('&')
+    def handle_authorization_approval
+      generator = Oidc::AuthorizationCodeGenerator.new(
+        current_user,
+        @found_client,
+        session[:authorization_params],
+      )
+      authorization_code = generator.generate
+
+      build_approval_redirect_uri(authorization_code)
     end
 
-    def render_error(error_code, error_description, state = nil)
-      if params[:redirect_uri].present?
-        begin
-          redirect_uri = URI.parse(params[:redirect_uri])
-          redirect_uri.query = build_query_string(
-            error: error_code,
-            error_description: error_description,
-            state: state || params[:state],
-          )
-          redirect_to redirect_uri.to_s, allow_other_host: true
-        rescue URI::InvalidURIError
-          render json: { error: error_code, error_description: error_description }, status: :bad_request
-        end
-      else
-        render json: { error: error_code, error_description: error_description }, status: :bad_request
-      end
+    def build_approval_redirect_uri(authorization_code)
+      redirect_uri = URI.parse(session[:authorization_params]['redirect_uri'])
+      redirect_uri.query = build_query_string(
+        code: authorization_code.code,
+        state: session[:authorization_params]['state'],
+      )
+      redirect_uri
+    end
+
+    def handle_authorization_denial
+      redirect_uri = URI.parse(session[:authorization_params]['redirect_uri'])
+      redirect_uri.query = build_query_string(
+        error: 'access_denied',
+        error_description: 'The user denied the request',
+        state: session[:authorization_params]['state'],
+      )
+      redirect_uri
     end
   end
 end

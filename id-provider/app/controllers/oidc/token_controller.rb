@@ -120,61 +120,8 @@ module Oidc
     end
 
     def generate_tokens
-      user = @authorization_code.user
-
-      # アクセストークン生成
-      access_token = AccessToken.create!(
-        user: user,
-        client: @client,
-        scopes: @authorization_code.scopes,
-        expires_at: 1.hour.from_now,
-      )
-
-      # IDトークン生成（OIDC）
-      id_token = generate_id_token(user, @client, @authorization_code.nonce)
-
-      # リフレッシュトークン生成（オプション）
-      refresh_token = nil
-      if @client.grant_types.include?('refresh_token')
-        refresh_token = RefreshToken.create!(
-          user: user,
-          client: @client,
-          scopes: @authorization_code.scopes,
-          expires_at: 30.days.from_now,
-        )
-      end
-
-      # 認可コードを使用済みにマーク
-      @authorization_code.use!
-
-      {
-        access_token: access_token,
-        id_token: id_token,
-        refresh_token: refresh_token,
-      }
-    end
-
-    def generate_id_token(user, client, nonce)
-      # JWTペイロード
-      payload = {
-        iss: Rails.application.config.action_controller.default_url_options[:host] || request.base_url,
-        sub: user.sub, # ユーザーの一意識別子
-        aud: client.client_id,
-        exp: 1.hour.from_now.to_i,
-        iat: Time.current.to_i,
-        nonce: nonce,
-      }
-
-      # scopeに応じてクレームを追加
-      if @authorization_code.scopes.include?('profile')
-        payload[:name] = user.name if user.respond_to?(:name)
-        payload[:email] = user.email if @authorization_code.scopes.include?('email')
-      end
-
-      # JWT署名（HS256使用）
-      # 本番環境では環境変数から秘密鍵を取得
-      secret_key = Rails.application.credentials.dig(:oidc, :jwt_secret) || 'development_secret'
-      JWT.encode(payload, secret_key, 'HS256')
+      generator = Oidc::TokenGenerator.new(@authorization_code, @client)
+      generator.generate
     end
   end
 end

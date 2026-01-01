@@ -7,21 +7,36 @@ class SessionsController < ApplicationController
   end
 
   def create
-    user = User.find_by(email: params[:email])
+    user = authenticate_user
 
-    if user&.authenticate(params[:password])
-      session[:user_id] = user.id
-      redirect_path = session.delete(:return_to) || user_path
-      redirect_to redirect_path, notice: 'ログインしました'
+    if user
+      login_user(user)
     else
-      flash.now[:alert] = 'メールアドレスまたはパスワードが正しくありません'
-      @return_to = session[:return_to]
-      render :new, status: :unprocessable_content
+      handle_authentication_failure
     end
   end
 
   def destroy
     session.delete(:user_id)
     redirect_to root_path, notice: 'ログアウトしました'
+  end
+
+  private
+
+  def authenticate_user
+    user = User.find_by(email: params[:email])
+    user if user&.authenticate(params[:password])
+  end
+
+  def login_user(user)
+    session[:user_id] = user.id
+    redirect_path = session.delete(:return_to) || user_path
+    redirect_to redirect_path, notice: 'ログインしました'
+  end
+
+  def handle_authentication_failure
+    flash.now[:alert] = 'メールアドレスまたはパスワードが正しくありません'
+    @return_to = session[:return_to]
+    render :new, status: :unprocessable_content
   end
 end

@@ -19,7 +19,7 @@ class AccessToken < ApplicationRecord
     expires_at <= Time.current
   end
 
-  def has_scope?(scope)
+  def scope?(scope)
     scopes.include?(scope)
   end
 
