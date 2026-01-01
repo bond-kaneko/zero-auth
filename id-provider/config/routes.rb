@@ -27,6 +27,11 @@ Rails.application.routes.draw do
 
   resource :user, only: [:show]
 
+  # Management namespace for admin features
+  namespace :management do
+    resources :clients, only: [:index]
+  end
+
   # Root path (fallback for direct access to IdP)
   root 'sessions#new'
 end
