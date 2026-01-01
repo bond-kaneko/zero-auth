@@ -3,5 +3,5 @@
 user_one_consent:
   user: one
   client: active_client
-  scopes: ["openid", "profile", "email"]
+  scopes: '["openid", "profile", "email"]'
   expires_at: null
