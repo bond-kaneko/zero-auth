@@ -1,7 +1,8 @@
 # app/controllers/oidc/authorization_controller.rb
 class Oidc::AuthorizationController < Oidc::ApplicationController
-  before_action :validate_authorization_params, only: [:new, :create]
-  before_action :find_client, only: [:new, :create]
+  before_action :validate_authorization_params, only: [:new]
+  before_action :find_client, only: [:new]
+  before_action :load_client, only: [:create]
   before_action :require_login, only: [:new, :create]
 
   def new
@@ -89,7 +90,7 @@ class Oidc::AuthorizationController < Oidc::ApplicationController
   end
 
   def find_client
-    @found_client = ClientRepository.find_by_client_id(params[:client_id])
+    @found_client = Client.find_by(client_id: params[:client_id])
     
     unless @found_client
       return render_error('invalid_client', 'Invalid client_id')
@@ -107,6 +108,13 @@ class Oidc::AuthorizationController < Oidc::ApplicationController
     # response_typeの検証
     unless @found_client.supports_response_type?(params[:response_type])
       return render_error('unsupported_response_type', 'Client does not support this response_type')
+    end
+  end
+
+  def load_client
+    @found_client = Client.find_by(client_id: session.dig(:authorization_params, "client_id"))
+    unless @found_client
+      render json: { error: 'invalid_request', error_description: 'Session expired' }, status: :bad_request
     end
   end
 
