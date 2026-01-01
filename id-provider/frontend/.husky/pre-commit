@@ -9,7 +9,7 @@ cd "$REPO_ROOT"
 # Exclude db/schema.rb and db/migrate files
 BACKEND_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^id-provider/.*\.rb$' | grep -v '^id-provider/frontend/' | grep -v '^id-provider/db/schema\.rb$' | grep -v '^id-provider/db/migrate/' || true)
 
-# Run RuboCop on staged backend files if any exist
+# Run RuboCop and RSpec on staged backend files if any exist
 if [ -n "$BACKEND_FILES" ]; then
   echo "Running RuboCop on backend files..."
   # Remove id-provider/ prefix for Docker container paths
@@ -21,6 +21,14 @@ if [ -n "$BACKEND_FILES" ]; then
     exit 1
   fi
   echo "✅ RuboCop passed!"
+
+  echo "Running RSpec tests with coverage check..."
+  docker compose exec -T web bundle exec rspec
+  if [ $? -ne 0 ]; then
+    echo "❌ RSpec tests failed or coverage is below 80%. Please fix the issues before committing."
+    exit 1
+  fi
+  echo "✅ RSpec tests and coverage check passed!"
   cd "$REPO_ROOT"
 fi
 

@@ -14,6 +14,8 @@ SimpleCov.start 'rails' do
   add_group 'Models', 'app/models'
   add_group 'Helpers', 'app/helpers'
   add_group 'Services', 'app/services'
+
+  minimum_coverage 80
 end
 
 require 'spec_helper'
