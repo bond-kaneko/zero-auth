@@ -20,8 +20,8 @@ class RegistrationsController < ApplicationController
 
     def sign_in_and_redirect
       session[:user_id] = @user.id
-      redirect_to = session.delete(:return_to) || root_path
-      redirect_to redirect_to, notice: 'アカウントを作成しました'
+      redirect_path = session.delete(:return_to) || root_path
+      redirect_to redirect_path, notice: 'アカウントを作成しました'
     end
 
     def user_params
