@@ -142,5 +142,37 @@ module Oidc
 
       assert_nil session[:authorization_params]
     end
+
+    test 'destroy clears session and redirects to post_logout_redirect_uri with state' do
+      login_as(@user)
+
+      get oidc_logout_url, params: {
+        post_logout_redirect_uri: 'https://example.com/logged-out',
+        state: 'logout-state',
+      }
+
+      assert_nil session[:user_id]
+      assert_redirected_to 'https://example.com/logged-out?state=logout-state'
+    end
+
+    test 'destroy clears session and redirects to post_logout_redirect_uri without state' do
+      login_as(@user)
+
+      get oidc_logout_url, params: {
+        post_logout_redirect_uri: 'https://example.com/logged-out',
+      }
+
+      assert_nil session[:user_id]
+      assert_redirected_to 'https://example.com/logged-out'
+    end
+
+    test 'destroy clears session and redirects to root when no post_logout_redirect_uri' do
+      login_as(@user)
+
+      get oidc_logout_url
+
+      assert_nil session[:user_id]
+      assert_redirected_to root_url
+    end
   end
 end

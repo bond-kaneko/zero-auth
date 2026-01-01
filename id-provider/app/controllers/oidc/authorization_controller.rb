@@ -30,6 +30,20 @@ module Oidc
       redirect_to redirect_uri.to_s, allow_other_host: true
     end
 
+    def destroy
+      reset_session
+
+      redirect_url = params[:post_logout_redirect_uri]
+      state = params[:state]
+
+      if redirect_url.present?
+        redirect_url = "#{redirect_url}?state=#{state}" if state.present?
+        redirect_to redirect_url, allow_other_host: true
+      else
+        redirect_to root_url, notice: 'Successfully logged out'
+      end
+    end
+
     private
 
     def check_authorization_params
