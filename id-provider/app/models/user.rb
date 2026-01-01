@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # app/models/user.rb
+# User model for authentication
 class User < ApplicationRecord
   has_secure_password
 
