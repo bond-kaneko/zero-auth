@@ -23,4 +23,15 @@ class OidcClient
     @client.authorization_code = code
     @client.access_token!
   end
+
+  def end_session_uri(post_logout_redirect_uri:, state: nil)
+    endpoint = @discovery.end_session_endpoint
+    return nil unless endpoint
+
+    uri = URI.parse(endpoint)
+    params = { post_logout_redirect_uri: post_logout_redirect_uri }
+    params[:state] = state if state
+    uri.query = URI.encode_www_form(params)
+    uri.to_s
+  end
 end

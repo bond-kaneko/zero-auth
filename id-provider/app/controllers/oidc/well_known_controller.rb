@@ -12,6 +12,7 @@ module Oidc
         token_endpoint: "#{issuer}/oidc/token",
         userinfo_endpoint: "#{issuer}/oidc/userinfo",
         jwks_uri: "#{issuer}/oidc/jwks",
+        end_session_endpoint: "#{issuer}/oidc/logout",
         response_types_supported: ['code'],
         subject_types_supported: ['public'],
         id_token_signing_alg_values_supported: ['RS256'],

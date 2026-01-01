@@ -32,7 +32,16 @@ class AuthController < ApplicationController
     session.delete(:oidc_state)
     session.delete(:oidc_nonce)
 
-    redirect_to root_url, notice: 'Successfully logged out'
+    # ID Providerのログアウトエンドポイントにリダイレクト
+    logout_uri = oidc_client.end_session_uri(
+      post_logout_redirect_uri: root_url
+    )
+
+    if logout_uri
+      redirect_to logout_uri, allow_other_host: true
+    else
+      redirect_to root_url, notice: 'Successfully logged out'
+    end
   end
 
   private

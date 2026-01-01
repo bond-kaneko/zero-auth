@@ -16,6 +16,7 @@ Rails.application.routes.draw do
     get '/userinfo', to: 'user_info#show'           # JSON API: user info
     post '/userinfo', to: 'user_info#show'          # JSON API: user info (POST)
     get '/jwks', to: 'jwks#index'                   # JSON API: public keys
+    get '/logout', to: 'logout#destroy'             # RP-Initiated Logout
   end
 
   # JSON API endpoints for React SPA
