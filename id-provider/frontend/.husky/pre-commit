@@ -32,6 +32,33 @@ if [ -n "$BACKEND_FILES" ]; then
   cd "$REPO_ROOT"
 fi
 
+# Check for membership Ruby files in staging area
+# Exclude db/schema.rb and db/migrate files
+MEMBERSHIP_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^service-provider/membership/.*\.rb$' | grep -v '^service-provider/membership/db/schema\.rb$' | grep -v '^service-provider/membership/db/migrate/' || true)
+
+# Run RuboCop and RSpec on staged membership files if any exist
+if [ -n "$MEMBERSHIP_FILES" ]; then
+  echo "Running RuboCop on membership files..."
+  # Remove service-provider/membership/ prefix for Docker container paths
+  CONTAINER_FILES=$(echo "$MEMBERSHIP_FILES" | sed 's|^service-provider/membership/||g')
+  cd service-provider/membership
+  docker compose exec -T web bundle exec rubocop $CONTAINER_FILES
+  if [ $? -ne 0 ]; then
+    echo "❌ RuboCop failed. Please fix the issues before committing."
+    exit 1
+  fi
+  echo "✅ RuboCop passed!"
+
+  echo "Running RSpec tests with coverage check..."
+  docker compose exec -T web bundle exec rspec
+  if [ $? -ne 0 ]; then
+    echo "❌ RSpec tests failed or coverage is below 80%. Please fix the issues before committing."
+    exit 1
+  fi
+  echo "✅ RSpec tests and coverage check passed!"
+  cd "$REPO_ROOT"
+fi
+
 # Run frontend lint-staged
 if git diff --cached --name-only --diff-filter=ACM | grep -q '^id-provider/frontend/'; then
   echo "Running frontend lint-staged..."
