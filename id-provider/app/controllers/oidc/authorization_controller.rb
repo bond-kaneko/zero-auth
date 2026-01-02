@@ -85,26 +85,20 @@ module Oidc
       )
       authorization_code = generator.generate
       record_user_consent
-      build_approval_redirect_uri(authorization_code)
-    end
 
-    def build_approval_redirect_uri(authorization_code)
-      redirect_uri = URI.parse(session[:authorization_params]['redirect_uri'])
-      redirect_uri.query = build_query_string(
-        code: authorization_code.code,
+      redirect_url_presenter = RedirectUrlPresenter.new(
+        redirect_uri: session[:authorization_params]['redirect_uri'],
         state: session[:authorization_params]['state'],
       )
-      redirect_uri
+      redirect_url_presenter.approved(authorization_code.code)
     end
 
     def handle_authorization_denial
-      redirect_uri = URI.parse(session[:authorization_params]['redirect_uri'])
-      redirect_uri.query = build_query_string(
-        error: 'access_denied',
-        error_description: 'The user denied the request',
+      redirect_url_presenter = RedirectUrlPresenter.new(
+        redirect_uri: session[:authorization_params]['redirect_uri'],
         state: session[:authorization_params]['state'],
       )
-      redirect_uri
+      redirect_url_presenter.denied
     end
 
     def record_user_consent
@@ -119,9 +113,15 @@ module Oidc
       save_authorization_params_to_session
       generator = Oidc::AuthorizationCodeGenerator.new(current_user, @found_client, session[:authorization_params])
       authorization_code = generator.generate
-      redirect_uri = build_approval_redirect_uri(authorization_code)
+
+      redirect_url_presenter = RedirectUrlPresenter.new(
+        redirect_uri: session[:authorization_params]['redirect_uri'],
+        state: session[:authorization_params]['state'],
+      )
+      redirect_uri = redirect_url_presenter.approved(authorization_code.code)
+
       session.delete(:authorization_params)
-      redirect_to redirect_uri.to_s, allow_other_host: true
+      redirect_to redirect_uri, allow_other_host: true
     end
 
     def show_consent_screen(requested_scopes)
