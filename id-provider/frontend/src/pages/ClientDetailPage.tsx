@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 
 import { clientsApi } from '~/api/clients'
+import { ArrayFieldEditor } from '~/components/ArrayFieldEditor'
 
 import type { JSX } from 'react'
 import type { Client } from '~/types/client'
@@ -14,6 +15,14 @@ export default function ClientDetailPage(): JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const [showSecret, setShowSecret] = useState(false)
   const [revoking, setRevoking] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    redirect_uris: [] as string[],
+    grant_types: [] as string[],
+    response_types: [] as string[],
+    scopes: [] as string[],
+  })
 
   const loadClient = useCallback(async (): Promise<void> => {
     if (!id) return
@@ -23,6 +32,13 @@ export default function ClientDetailPage(): JSX.Element {
       setError(null)
       const data = await clientsApi.get(id)
       setClient(data)
+      setFormData({
+        name: data.name,
+        redirect_uris: data.redirect_uris,
+        grant_types: data.grant_types ?? [],
+        response_types: data.response_types ?? [],
+        scopes: data.scopes ?? [],
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load client')
       console.error('Failed to load client:', err)
@@ -76,6 +92,55 @@ export default function ClientDetailPage(): JSX.Element {
     }
   }
 
+  const handleSave = async (): Promise<void> => {
+    if (!id) return
+
+    // Validation
+    if (!formData.name.trim()) {
+      alert('Client name is required')
+      return
+    }
+    if (formData.redirect_uris.length === 0) {
+      alert('At least one redirect URI is required')
+      return
+    }
+    if (formData.grant_types.length === 0) {
+      alert('At least one grant type is required')
+      return
+    }
+    if (formData.response_types.length === 0) {
+      alert('At least one response type is required')
+      return
+    }
+
+    try {
+      setSaving(true)
+      const updatedClient = await clientsApi.update(id, formData)
+      setClient(updatedClient)
+      setFormData({
+        name: updatedClient.name,
+        redirect_uris: updatedClient.redirect_uris,
+        grant_types: updatedClient.grant_types ?? [],
+        response_types: updatedClient.response_types ?? [],
+        scopes: updatedClient.scopes ?? [],
+      })
+      alert('Client updated successfully')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to update client')
+      console.error('Failed to update client:', err)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const updateArrayField = (field: keyof typeof formData, value: string[]): void => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const updateTextField = (field: 'name', value: string): void => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -115,6 +180,22 @@ export default function ClientDetailPage(): JSX.Element {
           </div>
 
           <div className="px-6 py-6 space-y-6">
+            {/* Client Name */}
+            <div>
+              <label htmlFor="client-name" className="block text-sm font-medium text-gray-700 mb-2">
+                Client Name
+              </label>
+              <input
+                id="client-name"
+                type="text"
+                value={formData.name}
+                onChange={(e) => {
+                  updateTextField('name', e.target.value)
+                }}
+                className="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
             {/* Client ID */}
             <div>
               <div className="block text-sm font-medium text-gray-700 mb-2">Client ID</div>
@@ -171,19 +252,44 @@ export default function ClientDetailPage(): JSX.Element {
             </div>
 
             {/* Redirect URIs */}
-            <div>
-              <div className="block text-sm font-medium text-gray-700 mb-2">Redirect URIs</div>
-              <div className="space-y-2">
-                {client.redirect_uris.map((uri, index) => (
-                  <code
-                    key={index}
-                    className="block bg-gray-50 border border-gray-200 rounded px-4 py-2 text-sm font-mono"
-                  >
-                    {uri}
-                  </code>
-                ))}
-              </div>
-            </div>
+            <ArrayFieldEditor
+              label="Redirect URIs"
+              values={formData.redirect_uris}
+              onChange={(values) => {
+                updateArrayField('redirect_uris', values)
+              }}
+              placeholder="https://example.com/callback"
+            />
+
+            {/* Grant Types */}
+            <ArrayFieldEditor
+              label="Grant Types"
+              values={formData.grant_types}
+              onChange={(values) => {
+                updateArrayField('grant_types', values)
+              }}
+              placeholder="authorization_code"
+            />
+
+            {/* Response Types */}
+            <ArrayFieldEditor
+              label="Response Types"
+              values={formData.response_types}
+              onChange={(values) => {
+                updateArrayField('response_types', values)
+              }}
+              placeholder="code"
+            />
+
+            {/* Scopes */}
+            <ArrayFieldEditor
+              label="Scopes"
+              values={formData.scopes}
+              onChange={(values) => {
+                updateArrayField('scopes', values)
+              }}
+              placeholder="openid profile email"
+            />
 
             {/* Metadata */}
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
@@ -204,15 +310,26 @@ export default function ClientDetailPage(): JSX.Element {
 
           {/* Actions */}
           <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between">
-            <button
-              onClick={() => {
-                void handleRevokeSecret()
-              }}
-              disabled={revoking}
-              className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {revoking ? 'Regenerating...' : 'Regenerate Secret'}
-            </button>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => {
+                  void handleSave()
+                }}
+                disabled={saving}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+              <button
+                onClick={() => {
+                  void handleRevokeSecret()
+                }}
+                disabled={revoking}
+                className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {revoking ? 'Regenerating...' : 'Regenerate Secret'}
+              </button>
+            </div>
             <button
               onClick={() => {
                 void handleDelete()

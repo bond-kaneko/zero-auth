@@ -59,7 +59,7 @@ module Api
       end
 
       def client_params
-        params.expect(client: [:name, { redirect_uris: [], grant_types: [], response_types: [] }])
+        params.expect(client: [:name, { redirect_uris: [], grant_types: [], response_types: [], scopes: [] }])
       end
     end
   end
