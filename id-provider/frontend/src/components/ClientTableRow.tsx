@@ -20,7 +20,7 @@ export function ClientTableRow({ client }: ClientTableRowProps): JSX.Element {
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
         {client.client_id}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{client.redirect_uri}</td>
+      <td className="px-6 py-4 text-sm text-gray-500">{client.redirect_uris.join(', ')}</td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         {new Date(client.created_at).toLocaleDateString()}
       </td>

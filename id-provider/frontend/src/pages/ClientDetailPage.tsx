@@ -169,12 +169,19 @@ export default function ClientDetailPage(): JSX.Element {
               </p>
             </div>
 
-            {/* Redirect URI */}
+            {/* Redirect URIs */}
             <div>
-              <div className="block text-sm font-medium text-gray-700 mb-2">Redirect URI</div>
-              <code className="block bg-gray-50 border border-gray-200 rounded px-4 py-2 text-sm font-mono">
-                {client.redirect_uri}
-              </code>
+              <div className="block text-sm font-medium text-gray-700 mb-2">Redirect URIs</div>
+              <div className="space-y-2">
+                {client.redirect_uris.map((uri, index) => (
+                  <code
+                    key={index}
+                    className="block bg-gray-50 border border-gray-200 rounded px-4 py-2 text-sm font-mono"
+                  >
+                    {uri}
+                  </code>
+                ))}
+              </div>
             </div>
 
             {/* Metadata */}
