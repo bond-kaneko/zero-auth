@@ -8,6 +8,7 @@ import { Button } from '~/components/Button'
 import { Card } from '~/components/Card'
 import { LoadingSpinner } from '~/components/LoadingSpinner'
 import { PageHeader } from '~/components/PageHeader'
+import { ReadOnlyField } from '~/components/ReadOnlyField'
 import { TextField } from '~/components/TextField'
 
 import type { JSX } from 'react'
@@ -188,22 +189,7 @@ export default function ClientDetailPage(): JSX.Element {
             />
 
             {/* Client ID */}
-            <div>
-              <div className="block text-sm font-medium text-gray-700 mb-2">Client ID</div>
-              <div className="flex items-center space-x-2">
-                <code className="flex-1 bg-gray-50 border border-gray-200 rounded px-4 py-2 text-sm font-mono">
-                  {client.client_id}
-                </code>
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    void navigator.clipboard.writeText(client.client_id)
-                  }}
-                >
-                  Copy
-                </Button>
-              </div>
-            </div>
+            <ReadOnlyField label="Client ID" value={client.client_id} />
 
             {/* Client Secret */}
             <div>
