@@ -11,16 +11,10 @@ module Oidc
 
       tokens = generate_tokens
 
-      response = {
-        access_token: tokens[:access_token].token,
-        token_type: 'Bearer',
-        expires_in: 3600,
-        id_token: tokens[:id_token],
-      }
+      presenter = TokenResponsePresenter.new(tokens)
+      presenter = presenter.with_refresh_token if tokens[:refresh_token]
 
-      response[:refresh_token] = tokens[:refresh_token].token if tokens[:refresh_token]
-
-      render json: response
+      render json: presenter.to_json
     end
 
     private
