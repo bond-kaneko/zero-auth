@@ -8,6 +8,11 @@ Rails.application.routes.draw do
   # Custom health endpoint
   get "health" => "health#show"
 
+  # API endpoints
+  namespace :api do
+    resources :organizations, only: %i[index show create update destroy]
+  end
+
   # Defines the root path route ("/")
   # root "posts#index"
 end
