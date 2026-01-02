@@ -28,7 +28,7 @@ module Oidc
     end
 
     def issuer_url
-      Rails.application.config.action_controller.default_url_options[:host] || 'localhost'
+      ENV.fetch('OIDC_ISSUER', 'http://localhost:3000')
     end
 
     def add_claims_to_payload(payload)
