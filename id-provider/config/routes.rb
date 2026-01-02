@@ -48,6 +48,7 @@ Rails.application.routes.draw do
           post :revoke_secret
         end
       end
+      resources :users, only: %i[index show create update destroy]
     end
   end
 end
