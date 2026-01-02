@@ -5,6 +5,7 @@ import { clientsApi } from '~/api/clients'
 import { ClientTableHeader } from '~/components/ClientTableHeader'
 import { ClientTableRow } from '~/components/ClientTableRow'
 
+import type { JSX } from 'react'
 import type { Client } from '~/types/client'
 
 export default function ClientsPage(): JSX.Element {

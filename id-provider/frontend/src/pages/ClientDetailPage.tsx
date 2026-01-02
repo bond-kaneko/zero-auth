@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 
 import { clientsApi } from '~/api/clients'
 
+import type { JSX } from 'react'
 import type { Client } from '~/types/client'
 
 export default function ClientDetailPage(): JSX.Element {

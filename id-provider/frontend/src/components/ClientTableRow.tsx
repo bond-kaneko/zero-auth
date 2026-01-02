@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 
+import type { JSX } from 'react'
 import type { Client } from '~/types/client'
 
 interface ClientTableRowProps {

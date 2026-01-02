@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 export function ClientTableHeader(): JSX.Element {
   return (
     <thead className="bg-gray-50">

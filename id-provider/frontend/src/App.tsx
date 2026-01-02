@@ -4,6 +4,8 @@ import ClientDetailPage from '~/pages/ClientDetailPage'
 import ClientsPage from '~/pages/ClientsPage'
 import HomePage from '~/pages/HomePage'
 
+import type { JSX } from 'react'
+
 function App(): JSX.Element {
   return (
     <BrowserRouter>

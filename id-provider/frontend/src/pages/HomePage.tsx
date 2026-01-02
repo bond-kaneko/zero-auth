@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 
+import type { JSX } from 'react'
+
 export default function HomePage(): JSX.Element {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
