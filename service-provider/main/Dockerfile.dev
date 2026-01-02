@@ -28,13 +28,13 @@ ENV RAILS_ENV=development \
     BUNDLE_PATH=/usr/local/bundle
 
 # Copy Gemfile and Gemfile.lock
-COPY service-provider/Gemfile service-provider/Gemfile.lock ./
+COPY service-provider/main/Gemfile service-provider/main/Gemfile.lock ./
 
 # Install gems
 RUN bundle install
 
 # Copy application code
-COPY service-provider/ .
+COPY service-provider/main/ .
 
 # Expose port 3001
 EXPOSE 3001
