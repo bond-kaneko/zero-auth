@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 
 import { clientsApi } from '~/api/clients'
+import { Alert } from '~/components/Alert'
 import { Button } from '~/components/Button'
 import { ClientTableHeader } from '~/components/ClientTableHeader'
 import { ClientTableRow } from '~/components/ClientTableRow'
@@ -49,11 +50,7 @@ export default function ClientsPage(): JSX.Element {
             </div>
           )}
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-              <p className="text-red-800">{error}</p>
-            </div>
-          )}
+          {error && <Alert variant="error">{error}</Alert>}
 
           {!loading && !error && clients.length === 0 && (
             <div className="text-gray-600">
