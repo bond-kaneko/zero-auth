@@ -42,7 +42,7 @@ module Api
       private
 
       def user_params
-        params.expect(user: [:email, :password, :name, :given_name, :family_name, :picture, :email_verified])
+        params.expect(user: %i[email password name given_name family_name picture email_verified])
       end
     end
   end
