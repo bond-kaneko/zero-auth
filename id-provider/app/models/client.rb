@@ -31,6 +31,11 @@ class Client < ApplicationRecord
     ActiveSupport::SecurityUtils.secure_compare(client_secret, secret)
   end
 
+  def regenerate_secret
+    self.client_secret = SecureRandom.hex(32)
+    save
+  end
+
   private
 
   def generate_client_id

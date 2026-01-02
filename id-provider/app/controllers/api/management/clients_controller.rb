@@ -20,7 +20,6 @@ module Api
       # POST /api/management/clients
       def create
         @client = Client.new(client_params)
-        @client.client_secret = SecureRandom.hex(32)
 
         if @client.save
           render json: @client, status: :created
@@ -46,9 +45,7 @@ module Api
 
       # POST /api/management/clients/:id/revoke_secret
       def revoke_secret
-        @client.client_secret = SecureRandom.hex(32)
-
-        if @client.save
+        if @client.regenerate_secret
           render json: @client
         else
           render json: { errors: @client.errors.full_messages }, status: :unprocessable_content
