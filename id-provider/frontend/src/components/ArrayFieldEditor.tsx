@@ -19,13 +19,17 @@ export function ArrayFieldEditor({
 }: ArrayFieldEditorProps): JSX.Element {
   const [inputValue, setInputValue] = useState('')
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
-    if (e.key === 'Enter' && inputValue.trim()) {
-      e.preventDefault()
-      if (!values.includes(inputValue.trim())) {
-        onChange([...values, inputValue.trim()])
-      }
+  const handleAdd = (): void => {
+    if (inputValue.trim() && !values.includes(inputValue.trim())) {
+      onChange([...values, inputValue.trim()])
       setInputValue('')
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleAdd()
     }
   }
 
@@ -58,17 +62,22 @@ export function ArrayFieldEditor({
       </div>
 
       {/* New input */}
-      <input
-        type="text"
-        value={inputValue}
-        onChange={(e) => {
-          setInputValue(e.target.value)
-        }}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        className="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <p className="mt-1 text-xs text-gray-500">Press Enter to add</p>
+      <div className="flex items-center space-x-2">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.target.value)
+          }}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          className="flex-1 border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <Button type="button" variant="secondary" onClick={handleAdd} disabled={!inputValue.trim()}>
+          Add
+        </Button>
+      </div>
+      <p className="mt-1 text-xs text-gray-500">Press Enter or click Add button</p>
     </div>
   )
 }

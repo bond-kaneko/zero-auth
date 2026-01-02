@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { clientsApi } from '~/api/clients'
 import { Alert } from '~/components/Alert'
@@ -13,6 +14,7 @@ import type { JSX } from 'react'
 import type { Client } from '~/types/client'
 
 export default function ClientsPage(): JSX.Element {
+  const navigate = useNavigate()
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -43,7 +45,14 @@ export default function ClientsPage(): JSX.Element {
         <Card className="p-6">
           <div className="mb-6 flex justify-between items-center">
             <h2 className="text-xl font-semibold text-gray-900">Clients</h2>
-            <Button variant="primary">Add Client</Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                void navigate('/clients/new')
+              }}
+            >
+              Add Client
+            </Button>
           </div>
 
           {loading && <LoadingSpinner />}

@@ -14,7 +14,10 @@ export interface Client {
 
 export interface CreateClientRequest {
   name: string
-  redirect_uri: string
+  redirect_uris: string[]
+  grant_types: string[]
+  response_types: string[]
+  scopes?: string[]
 }
 
 export interface UpdateClientRequest {
