@@ -6,6 +6,7 @@ import { Alert } from '~/components/Alert'
 import { ArrayFieldEditor } from '~/components/ArrayFieldEditor'
 import { Button } from '~/components/Button'
 import { Card } from '~/components/Card'
+import { DateTime } from '~/components/DateTime'
 import { LoadingSpinner } from '~/components/LoadingSpinner'
 import { PageHeader } from '~/components/PageHeader'
 import { ReadOnlyField } from '~/components/ReadOnlyField'
@@ -269,17 +270,17 @@ export default function ClientDetailPage(): JSX.Element {
             />
 
             {/* Metadata */}
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+            <div className="grid grid-cols-2 gap-4 pt-4 border-gray-200">
               <div>
                 <div className="block text-sm font-medium text-gray-700 mb-1">Created At</div>
                 <p className="text-sm text-gray-900">
-                  {new Date(client.created_at).toLocaleString()}
+                  <DateTime value={client.created_at} />
                 </p>
               </div>
               <div>
                 <div className="block text-sm font-medium text-gray-700 mb-1">Updated At</div>
                 <p className="text-sm text-gray-900">
-                  {new Date(client.updated_at).toLocaleString()}
+                  <DateTime value={client.updated_at} />
                 </p>
               </div>
             </div>

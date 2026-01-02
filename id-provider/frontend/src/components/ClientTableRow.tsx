@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 
+import { DateTime } from '~/components/DateTime'
+
 import type { JSX } from 'react'
 import type { Client } from '~/types/client'
 
@@ -23,7 +25,7 @@ export function ClientTableRow({ client }: ClientTableRowProps): JSX.Element {
       </td>
       <td className="px-6 py-4 text-sm text-gray-500">{client.redirect_uris.join(', ')}</td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {new Date(client.created_at).toLocaleDateString()}
+        <DateTime value={client.created_at} />
       </td>
     </tr>
   )
