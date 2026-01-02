@@ -3,13 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe 'OIDC Authorization Endpoint', type: :request do
+  before { host! 'example.com' }
+
   let(:user) { create(:user, email: 'user@example.com') }
   let(:user_two) { create(:user, email: 'user2@example.com') }
   let(:client) { create(:client, redirect_uris: ['https://example.com/callback']) }
-
-  def login_as(user_account)
-    post login_url, params: { email: user_account.email, password: 'Password123' }
-  end
 
   describe 'GET /oidc/authorize' do
     context 'when not authenticated' do

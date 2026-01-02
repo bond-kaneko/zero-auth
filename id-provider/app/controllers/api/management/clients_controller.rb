@@ -59,7 +59,7 @@ module Api
       end
 
       def client_params
-        params.require(:client).permit(:name, redirect_uris: [], grant_types: [], response_types: [])
+        params.expect(client: [:name, { redirect_uris: [], grant_types: [], response_types: [] }])
       end
     end
   end

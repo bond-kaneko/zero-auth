@@ -10,20 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_01_121831) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_01_121831) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
 
   create_table "access_tokens", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "client_id", null: false
     t.bigint "authorization_code_id"
-    t.string "token", null: false
-    t.text "scopes", default: [], array: true
-    t.string "token_type", default: "Bearer"
-    t.datetime "expires_at", null: false
+    t.bigint "client_id", null: false
     t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.text "scopes", default: [], array: true
+    t.string "token", null: false
+    t.string "token_type", default: "Bearer"
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["authorization_code_id"], name: "index_access_tokens_on_authorization_code_id"
     t.index ["client_id"], name: "index_access_tokens_on_client_id"
     t.index ["token"], name: "index_access_tokens_on_token", unique: true
@@ -31,19 +31,19 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_01_121831) do
   end
 
   create_table "authorization_codes", force: :cascade do |t|
-    t.bigint "user_id", null: false
     t.bigint "client_id", null: false
     t.string "code", null: false
-    t.text "redirect_uri", null: false
-    t.text "scopes", default: [], array: true
-    t.string "nonce"
     t.string "code_challenge"
     t.string "code_challenge_method"
+    t.datetime "created_at", null: false
     t.datetime "expires_at", null: false
+    t.string "nonce"
+    t.text "redirect_uri", null: false
+    t.text "scopes", default: [], array: true
+    t.datetime "updated_at", null: false
     t.boolean "used", default: false
     t.datetime "used_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["client_id"], name: "index_authorization_codes_on_client_id"
     t.index ["code", "used"], name: "index_authorization_codes_on_code_and_used"
     t.index ["code"], name: "index_authorization_codes_on_code", unique: true
@@ -51,34 +51,34 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_01_121831) do
   end
 
   create_table "clients", force: :cascade do |t|
+    t.boolean "active", default: true
     t.string "client_id", null: false
     t.string "client_secret", null: false
-    t.string "name"
-    t.text "redirect_uris", default: [], array: true
+    t.string "client_uri"
+    t.datetime "created_at", null: false
     t.text "grant_types", default: [], array: true
+    t.string "logo_uri"
+    t.string "name"
+    t.string "policy_uri"
+    t.text "redirect_uris", default: [], array: true
     t.text "response_types", default: [], array: true
     t.text "scopes", default: [], array: true
-    t.string "client_uri"
-    t.string "logo_uri"
-    t.string "policy_uri"
     t.string "tos_uri"
-    t.boolean "active", default: true
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["client_id"], name: "index_clients_on_client_id", unique: true
   end
 
   create_table "refresh_tokens", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "client_id", null: false
     t.bigint "access_token_id"
-    t.string "token", null: false
-    t.text "scopes", default: [], array: true
+    t.bigint "client_id", null: false
+    t.datetime "created_at", null: false
     t.datetime "expires_at", null: false
     t.boolean "revoked", default: false
     t.datetime "revoked_at"
-    t.datetime "created_at", null: false
+    t.text "scopes", default: [], array: true
+    t.string "token", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["access_token_id"], name: "index_refresh_tokens_on_access_token_id"
     t.index ["client_id"], name: "index_refresh_tokens_on_client_id"
     t.index ["token"], name: "index_refresh_tokens_on_token", unique: true
@@ -86,27 +86,27 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_01_121831) do
   end
 
   create_table "user_consents", force: :cascade do |t|
-    t.bigint "user_id", null: false
     t.bigint "client_id", null: false
-    t.text "scopes"
-    t.datetime "expires_at"
     t.datetime "created_at", null: false
+    t.datetime "expires_at"
+    t.text "scopes"
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["client_id"], name: "index_user_consents_on_client_id"
     t.index ["user_id", "client_id"], name: "index_user_consents_on_user_id_and_client_id", unique: true
     t.index ["user_id"], name: "index_user_consents_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "sub", null: false
-    t.string "email", null: false
-    t.string "password_digest", null: false
-    t.string "name"
-    t.string "given_name"
-    t.string "family_name"
-    t.string "picture"
-    t.boolean "email_verified", default: false
     t.datetime "created_at", null: false
+    t.string "email", null: false
+    t.boolean "email_verified", default: false
+    t.string "family_name"
+    t.string "given_name"
+    t.string "name"
+    t.string "password_digest", null: false
+    t.string "picture"
+    t.string "sub", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["sub"], name: "index_users_on_sub", unique: true
