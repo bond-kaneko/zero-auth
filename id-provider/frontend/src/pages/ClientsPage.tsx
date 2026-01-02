@@ -5,6 +5,7 @@ import { Alert } from '~/components/Alert'
 import { Button } from '~/components/Button'
 import { ClientTableHeader } from '~/components/ClientTableHeader'
 import { ClientTableRow } from '~/components/ClientTableRow'
+import { LoadingSpinner } from '~/components/LoadingSpinner'
 import { PageHeader } from '~/components/PageHeader'
 
 import type { JSX } from 'react'
@@ -44,11 +45,7 @@ export default function ClientsPage(): JSX.Element {
             <Button variant="primary">Add Client</Button>
           </div>
 
-          {loading && (
-            <div className="text-center py-8">
-              <p className="text-gray-600">Loading...</p>
-            </div>
-          )}
+          {loading && <LoadingSpinner />}
 
           {error && <Alert variant="error">{error}</Alert>}
 

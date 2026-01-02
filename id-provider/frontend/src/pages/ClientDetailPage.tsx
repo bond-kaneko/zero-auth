@@ -5,6 +5,7 @@ import { clientsApi } from '~/api/clients'
 import { Alert } from '~/components/Alert'
 import { ArrayFieldEditor } from '~/components/ArrayFieldEditor'
 import { Button } from '~/components/Button'
+import { LoadingSpinner } from '~/components/LoadingSpinner'
 import { PageHeader } from '~/components/PageHeader'
 import { TextField } from '~/components/TextField'
 
@@ -148,7 +149,7 @@ export default function ClientDetailPage(): JSX.Element {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+        <LoadingSpinner />
       </div>
     )
   }
