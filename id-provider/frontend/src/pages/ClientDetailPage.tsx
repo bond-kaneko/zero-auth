@@ -5,6 +5,7 @@ import { clientsApi } from '~/api/clients'
 import { Alert } from '~/components/Alert'
 import { ArrayFieldEditor } from '~/components/ArrayFieldEditor'
 import { Button } from '~/components/Button'
+import { Card } from '~/components/Card'
 import { LoadingSpinner } from '~/components/LoadingSpinner'
 import { PageHeader } from '~/components/PageHeader'
 import { TextField } from '~/components/TextField'
@@ -170,7 +171,7 @@ export default function ClientDetailPage(): JSX.Element {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PageHeader title="Client Details" backTo="/clients" backText="← Back to Clients" />
 
-        <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+        <Card>
           <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
             <h2 className="text-xl font-semibold text-gray-900">{client.name}</h2>
           </div>
@@ -329,7 +330,7 @@ export default function ClientDetailPage(): JSX.Element {
               Delete Client
             </Button>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   )

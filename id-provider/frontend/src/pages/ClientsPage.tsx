@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { clientsApi } from '~/api/clients'
 import { Alert } from '~/components/Alert'
 import { Button } from '~/components/Button'
+import { Card } from '~/components/Card'
 import { ClientTableHeader } from '~/components/ClientTableHeader'
 import { ClientTableRow } from '~/components/ClientTableRow'
 import { LoadingSpinner } from '~/components/LoadingSpinner'
@@ -39,7 +40,7 @@ export default function ClientsPage(): JSX.Element {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PageHeader title="Client Management" backTo="/" backText="← Back to Home" />
 
-        <div className="bg-white shadow-lg rounded-lg p-6">
+        <Card className="p-6">
           <div className="mb-6 flex justify-between items-center">
             <h2 className="text-xl font-semibold text-gray-900">Clients</h2>
             <Button variant="primary">Add Client</Button>
@@ -67,7 +68,7 @@ export default function ClientsPage(): JSX.Element {
               </table>
             </div>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   )
