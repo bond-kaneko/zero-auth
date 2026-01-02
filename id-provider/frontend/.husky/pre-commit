@@ -69,4 +69,18 @@ if git diff --cached --name-only --diff-filter=ACM | grep -q '^id-provider/front
     exit 1
   fi
   echo "✅ Frontend lint passed!"
+  cd "$REPO_ROOT"
+fi
+
+# Run membership frontend lint-staged
+if git diff --cached --name-only --diff-filter=ACM | grep -q '^service-provider/membership/frontend/'; then
+  echo "Running membership frontend lint-staged..."
+  cd service-provider/membership/frontend
+  npx lint-staged
+  if [ $? -ne 0 ]; then
+    echo "❌ Membership frontend lint failed. Please fix the issues before committing."
+    exit 1
+  fi
+  echo "✅ Membership frontend lint passed!"
+  cd "$REPO_ROOT"
 fi
