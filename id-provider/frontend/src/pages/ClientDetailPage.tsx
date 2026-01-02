@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 
 import { clientsApi } from '~/api/clients'
 import { ArrayFieldEditor } from '~/components/ArrayFieldEditor'
 import { Button } from '~/components/Button'
+import { PageHeader } from '~/components/PageHeader'
 import { TextField } from '~/components/TextField'
 
 import type { JSX } from 'react'
@@ -155,9 +156,7 @@ export default function ClientDetailPage(): JSX.Element {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Link to="/clients" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
-            ← Back to Clients
-          </Link>
+          <PageHeader title="Client Details" backTo="/clients" backText="← Back to Clients" />
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-red-800">{error ?? 'Client not found'}</p>
           </div>
@@ -169,12 +168,7 @@ export default function ClientDetailPage(): JSX.Element {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <Link to="/clients" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
-            ← Back to Clients
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Client Details</h1>
-        </div>
+        <PageHeader title="Client Details" backTo="/clients" backText="← Back to Clients" />
 
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
