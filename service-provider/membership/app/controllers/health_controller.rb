@@ -2,6 +2,6 @@
 
 class HealthController < ApplicationController
   def show
-    render json: { status: 'ok', service: 'membership' }, status: :ok
+    render json: { status: "ok", service: "membership" }, status: :ok
   end
 end
