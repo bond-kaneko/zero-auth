@@ -84,7 +84,9 @@ module Oidc
         session[:authorization_params],
       )
       authorization_code = generator.generate
-      record_user_consent
+
+      requested_scopes = parse_scopes(session[:authorization_params]['scope'])
+      UserConsent.record_for(user: current_user, client: @found_client, scopes: requested_scopes)
 
       redirect_url_presenter = RedirectUrlPresenter.new(
         redirect_uri: session[:authorization_params]['redirect_uri'],
@@ -99,14 +101,6 @@ module Oidc
         state: session[:authorization_params]['state'],
       )
       redirect_url_presenter.denied
-    end
-
-    def record_user_consent
-      requested_scopes = parse_scopes(session[:authorization_params]['scope'])
-      consent = current_user.user_consents.find_or_initialize_by(client: @found_client)
-      consent.scopes = requested_scopes
-      consent.expires_at = nil
-      consent.save!
     end
 
     def auto_approve_authorization
