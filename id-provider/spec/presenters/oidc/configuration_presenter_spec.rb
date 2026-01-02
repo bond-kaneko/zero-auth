@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe OidcConfigurationPresenter do
+RSpec.describe Oidc::ConfigurationPresenter do
   describe '#to_json' do
     let(:issuer) { 'https://id-provider.example.com:3443' }
 

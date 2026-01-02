@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe UserInfoPresenter do
+RSpec.describe Oidc::UserInfoPresenter do
   let(:user) { create(:user) }
 
   describe '#to_oidc_userinfo' do

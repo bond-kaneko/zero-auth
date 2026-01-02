@@ -5,7 +5,7 @@ module Oidc
   class WellKnownController < Oidc::ApplicationController
     def configuration
       issuer = ENV.fetch('OIDC_ISSUER', 'https://id-provider.local:3443')
-      presenter = OidcConfigurationPresenter.new(issuer: issuer)
+      presenter = ConfigurationPresenter.new(issuer: issuer)
       render json: presenter.to_json
     end
   end

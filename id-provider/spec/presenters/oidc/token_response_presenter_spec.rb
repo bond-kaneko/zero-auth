@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe TokenResponsePresenter do
+RSpec.describe Oidc::TokenResponsePresenter do
   describe '#to_json' do
     let(:access_token) { instance_double(AccessToken, token: 'access_token_value') }
     let(:id_token) { 'id_token_jwt_value' }

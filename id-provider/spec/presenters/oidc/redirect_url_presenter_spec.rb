@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe RedirectUrlPresenter do
+RSpec.describe Oidc::RedirectUrlPresenter do
   let(:redirect_uri) { 'https://example.com/callback' }
   let(:state) { 'random_state_value' }
 
