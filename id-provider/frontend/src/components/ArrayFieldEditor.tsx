@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { Button } from './Button'
+
 import type { JSX } from 'react'
 
 interface ArrayFieldEditorProps {
@@ -42,15 +44,15 @@ export function ArrayFieldEditor({
             <code className="flex-1 bg-gray-50 border border-gray-200 rounded px-4 py-2 text-sm font-mono">
               {value}
             </code>
-            <button
+            <Button
               type="button"
+              variant="danger-light"
               onClick={() => {
                 handleRemove(index)
               }}
-              className="px-3 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors text-sm"
             >
               Remove
-            </button>
+            </Button>
           </div>
         ))}
       </div>

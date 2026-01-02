@@ -3,6 +3,8 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 
 import { clientsApi } from '~/api/clients'
 import { ArrayFieldEditor } from '~/components/ArrayFieldEditor'
+import { Button } from '~/components/Button'
+import { TextField } from '~/components/TextField'
 
 import type { JSX } from 'react'
 import type { Client } from '~/types/client'
@@ -181,20 +183,14 @@ export default function ClientDetailPage(): JSX.Element {
 
           <div className="px-6 py-6 space-y-6">
             {/* Client Name */}
-            <div>
-              <label htmlFor="client-name" className="block text-sm font-medium text-gray-700 mb-2">
-                Client Name
-              </label>
-              <input
-                id="client-name"
-                type="text"
-                value={formData.name}
-                onChange={(e) => {
-                  updateTextField('name', e.target.value)
-                }}
-                className="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            <TextField
+              id="client-name"
+              label="Client Name"
+              value={formData.name}
+              onChange={(value) => {
+                updateTextField('name', value)
+              }}
+            />
 
             {/* Client ID */}
             <div>
@@ -203,14 +199,14 @@ export default function ClientDetailPage(): JSX.Element {
                 <code className="flex-1 bg-gray-50 border border-gray-200 rounded px-4 py-2 text-sm font-mono">
                   {client.client_id}
                 </code>
-                <button
+                <Button
+                  variant="secondary"
                   onClick={() => {
                     void navigator.clipboard.writeText(client.client_id)
                   }}
-                  className="px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-sm"
                 >
                   Copy
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -227,23 +223,23 @@ export default function ClientDetailPage(): JSX.Element {
                     <span className="text-sm text-gray-500">••••••••••••••••••••••••••••••••</span>
                   )}
                 </div>
-                <button
+                <Button
+                  variant="secondary"
                   onClick={() => {
                     setShowSecret(!showSecret)
                   }}
-                  className="px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-sm"
                 >
                   {showSecret ? 'Hide' : 'Show'}
-                </button>
+                </Button>
                 {showSecret && client.client_secret && (
-                  <button
+                  <Button
+                    variant="secondary"
                     onClick={() => {
                       void navigator.clipboard.writeText(client.client_secret)
                     }}
-                    className="px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-sm"
                   >
                     Copy
-                  </button>
+                  </Button>
                 )}
               </div>
               <p className="mt-2 text-sm text-gray-500">
@@ -311,33 +307,33 @@ export default function ClientDetailPage(): JSX.Element {
           {/* Actions */}
           <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between">
             <div className="flex space-x-2">
-              <button
+              <Button
+                variant="primary"
                 onClick={() => {
                   void handleSave()
                 }}
                 disabled={saving}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="warning"
                 onClick={() => {
                   void handleRevokeSecret()
                 }}
                 disabled={revoking}
-                className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {revoking ? 'Regenerating...' : 'Regenerate Secret'}
-              </button>
+              </Button>
             </div>
-            <button
+            <Button
+              variant="danger"
               onClick={() => {
                 void handleDelete()
               }}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
               Delete Client
-            </button>
+            </Button>
           </div>
         </div>
       </div>
