@@ -8,6 +8,6 @@ class CreateMemberships < ActiveRecord::Migration[8.1]
     end
 
     add_index :memberships, :user_id
-    add_index :memberships, [:user_id, :role_id], unique: true
+    add_index :memberships, [ :user_id, :role_id ], unique: true
   end
 end

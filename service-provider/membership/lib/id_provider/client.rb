@@ -17,7 +17,7 @@ module IdProvider
       end
     end
 
-    def fetch_users(page: 1, per_page: 100)
+    def fetch_users(page: 0, per_page: 100)
       response = @connection.get("/api/management/users") do |req|
         req.params["page"] = page
         req.params["per_page"] = per_page
@@ -32,7 +32,7 @@ module IdProvider
 
     def fetch_all_users
       all_users = []
-      page = 1
+      page = 0
       per_page = 100
 
       loop do
