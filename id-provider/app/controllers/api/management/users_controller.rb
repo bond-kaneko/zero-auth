@@ -3,6 +3,7 @@
 module Api
   module Management
     class UsersController < ApplicationController
+      skip_before_action :verify_authenticity_token
       include Paginatable
 
       rescue_from Paginatable::ValidationError, with: :render_validation_error

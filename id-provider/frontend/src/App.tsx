@@ -4,6 +4,7 @@ import { Layout } from '~/components/Layout'
 import ClientDetailPage from '~/pages/ClientDetailPage'
 import ClientsPage from '~/pages/ClientsPage'
 import CreateClientPage from '~/pages/CreateClientPage'
+import CreateUserPage from '~/pages/CreateUserPage'
 import HomePage from '~/pages/HomePage'
 import UserDetailPage from '~/pages/UserDetailPage'
 import UsersPage from '~/pages/UsersPage'
@@ -20,6 +21,7 @@ function App(): JSX.Element {
           <Route path="/clients/new" element={<CreateClientPage />} />
           <Route path="/clients/:id" element={<ClientDetailPage />} />
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/users/new" element={<CreateUserPage />} />
           <Route path="/users/:id" element={<UserDetailPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
