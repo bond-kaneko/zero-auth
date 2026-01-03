@@ -157,6 +157,8 @@ RSpec.describe "Organizations API", type: :request do
 
       user1_id = SecureRandom.uuid
       user2_id = SecureRandom.uuid
+      User.create!(id_provider_user_id: user1_id, email: "user1@example.com", name: "User 1")
+      User.create!(id_provider_user_id: user2_id, email: "user2@example.com", name: "User 2")
 
       membership1 = admin_role.role_memberships.create!(user_id: user1_id)
       membership2 = member_role.role_memberships.create!(user_id: user1_id)
@@ -219,6 +221,48 @@ RSpec.describe "Organizations API", type: :request do
 
       # Then
       expect(response).to have_http_status(:not_found)
+    end
+
+    it "searches memberships by keyword (user email)" do
+      # Given
+      org = Organization.create!(name: "Test Org", slug: "test-org")
+      role = org.roles.create!(name: "Admin", permissions: [ "read" ])
+
+      user1 = User.create!(id_provider_user_id: "user-1", email: "alice@example.com", name: "Alice")
+      user2 = User.create!(id_provider_user_id: "user-2", email: "bob@example.com", name: "Bob")
+
+      role.role_memberships.create!(user_id: user1.id_provider_user_id)
+      role.role_memberships.create!(user_id: user2.id_provider_user_id)
+
+      # When
+      get "/api/organizations/#{org.id}/memberships?keyword=alice"
+
+      # Then
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json.length).to eq(1)
+      expect(json.first["user_id"]).to eq("user-1")
+    end
+
+    it "searches memberships by keyword (role name)" do
+      # Given
+      org = Organization.create!(name: "Test Org", slug: "test-org")
+      admin_role = org.roles.create!(name: "Admin", permissions: [ "read" ])
+      member_role = org.roles.create!(name: "Member", permissions: [ "read" ])
+
+      user1 = User.create!(id_provider_user_id: "user-1", email: "alice@example.com", name: "Alice")
+
+      admin_role.role_memberships.create!(user_id: user1.id_provider_user_id)
+      member_role.role_memberships.create!(user_id: user1.id_provider_user_id)
+
+      # When
+      get "/api/organizations/#{org.id}/memberships?keyword=Admin"
+
+      # Then
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json.length).to eq(1)
+      expect(json.first["role"]["name"]).to eq("Admin")
     end
   end
 end

@@ -37,7 +37,7 @@ module Api
     end
 
     def memberships
-      @memberships = @organization.role_memberships
+      @memberships = @organization.role_memberships.search_by_keyword(params[:keyword])
       render json: @memberships, include: :role
     end
 

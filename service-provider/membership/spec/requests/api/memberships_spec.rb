@@ -9,6 +9,7 @@ RSpec.describe "Memberships API", type: :request do
       org = Organization.create!(name: "Test Org", slug: "test-org")
       role = org.roles.create!(name: "Admin", permissions: [ "read", "write" ])
       user_id = SecureRandom.uuid
+      User.create!(id_provider_user_id: user_id, email: "user@example.com", name: "User")
       params = { membership: { user_id: user_id } }
 
       # When
@@ -30,6 +31,7 @@ RSpec.describe "Memberships API", type: :request do
       org = Organization.create!(name: "Test Org", slug: "test-org")
       role = org.roles.create!(name: "Admin", permissions: [ "read", "write" ])
       user_id = SecureRandom.uuid
+      User.create!(id_provider_user_id: user_id, email: "user@example.com", name: "User")
       role.role_memberships.create!(user_id: user_id)
 
       params = { membership: { user_id: user_id } }
