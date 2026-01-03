@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   # API endpoints
   namespace :api do
     resources :organizations, only: %i[index show create update destroy]
+    resources :users, only: %i[index]
 
     post "users/sync", to: "users#sync"
   end

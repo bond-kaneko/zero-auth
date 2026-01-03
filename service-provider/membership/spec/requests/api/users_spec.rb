@@ -73,4 +73,33 @@ RSpec.describe "Users API", type: :request do
       expect(user1.name).to eq("User 1")
     end
   end
+
+  describe "GET /api/users" do
+    before do
+      # Create test users
+      User.create!(id_provider_user_id: "550e8400-e29b-41d4-a716-446655440001", email: "user1@example.com", name: "User 1")
+      User.create!(id_provider_user_id: "550e8400-e29b-41d4-a716-446655440002", email: "user2@example.com", name: "User 2")
+      User.create!(id_provider_user_id: "550e8400-e29b-41d4-a716-446655440003", email: "user3@example.com", name: "User 3")
+    end
+
+    it "returns all users with default pagination" do
+      # When
+      get "/api/users"
+
+      # Then
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json.length).to eq(3)
+    end
+
+    it "returns paginated users" do
+      # When
+      get "/api/users?page=0&per_page=2"
+
+      # Then
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json.length).to eq(2)
+    end
+  end
 end

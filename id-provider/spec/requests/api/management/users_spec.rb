@@ -27,7 +27,7 @@ RSpec.describe 'Users Management API', type: :request do
         create_list(:user, 10)
 
         # When
-        get '/api/management/users', params: { page: 1, per_page: 3 }
+        get '/api/management/users', params: { page: 0, per_page: 3 }
 
         # Then
         expect(response).to have_http_status(:ok)
@@ -40,7 +40,7 @@ RSpec.describe 'Users Management API', type: :request do
         create_list(:user, 5)
 
         # When
-        get '/api/management/users', params: { page: 2, per_page: 2 }
+        get '/api/management/users', params: { page: 1, per_page: 2 }
 
         # Then
         expect(response).to have_http_status(:ok)

@@ -15,15 +15,15 @@ RSpec.describe Paginatable, type: :concern do
   describe '#validate_pagination_params!' do
     context 'with valid parameters' do
       it 'does not raise error with valid page and per_page' do
-        expect { dummy_instance.send(:validate_pagination_params!, page: 1, per_page: 10) }.not_to raise_error
+        expect { dummy_instance.send(:validate_pagination_params!, page: 0, per_page: 10) }.not_to raise_error
       end
 
-      it 'does not raise error with page=1 and per_page=1' do
-        expect { dummy_instance.send(:validate_pagination_params!, page: 1, per_page: 1) }.not_to raise_error
+      it 'does not raise error with page=0 and per_page=1' do
+        expect { dummy_instance.send(:validate_pagination_params!, page: 0, per_page: 1) }.not_to raise_error
       end
 
       it 'does not raise error with maximum per_page' do
-        expect { dummy_instance.send(:validate_pagination_params!, page: 1, per_page: 1000) }.not_to raise_error
+        expect { dummy_instance.send(:validate_pagination_params!, page: 0, per_page: 1000) }.not_to raise_error
       end
 
       it 'does not raise error with large page number' do
@@ -32,16 +32,10 @@ RSpec.describe Paginatable, type: :concern do
     end
 
     context 'with invalid page' do
-      it 'raises ValidationError when page is 0' do
-        expect do
-          dummy_instance.send(:validate_pagination_params!, page: 0, per_page: 10)
-        end.to raise_error(Paginatable::ValidationError, 'page must be greater than or equal to 1')
-      end
-
       it 'raises ValidationError when page is negative' do
         expect do
           dummy_instance.send(:validate_pagination_params!, page: -1, per_page: 10)
-        end.to raise_error(Paginatable::ValidationError, 'page must be greater than or equal to 1')
+        end.to raise_error(Paginatable::ValidationError, 'page must be greater than or equal to 0')
       end
     end
 
