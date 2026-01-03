@@ -2,7 +2,7 @@
 
 class Role < ApplicationRecord
   belongs_to :organization
-  has_many :memberships, dependent: :destroy
+  has_many :role_memberships, dependent: :destroy
 
   validates :name, presence: true
   validates :name, uniqueness: { scope: :organization_id }
@@ -10,6 +10,6 @@ class Role < ApplicationRecord
 
   # Get all users with this role
   def users
-    memberships.pluck(:user_id)
+    role_memberships.pluck(:user_id)
   end
 end

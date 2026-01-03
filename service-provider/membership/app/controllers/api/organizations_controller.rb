@@ -10,7 +10,7 @@ module Api
     end
 
     def show
-      render json: @organization
+      render json: @organization, include: :roles
     end
 
     def create

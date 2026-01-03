@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
 import { Layout } from '~/components/Layout'
 import HomePage from '~/pages/HomePage'
+import OrganizationDetailPage from '~/pages/OrganizationDetailPage'
 import OrganizationsPage from '~/pages/OrganizationsPage'
 import UsersPage from '~/pages/UsersPage'
 
@@ -14,6 +15,7 @@ function App(): JSX.Element {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/organizations" element={<OrganizationsPage />} />
+          <Route path="/organizations/:id" element={<OrganizationDetailPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

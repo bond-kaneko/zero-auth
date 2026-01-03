@@ -24,9 +24,11 @@ RSpec.describe "Organizations API", type: :request do
   end
 
   describe "GET /api/organizations/:id" do
-    it "returns a single organization" do
+    it "returns a single organization with roles" do
       # Given
       org = Organization.create!(name: "Test Org", slug: "test-org")
+      role1 = org.roles.create!(name: "Admin", permissions: [ "read", "write" ])
+      role2 = org.roles.create!(name: "Member", permissions: [ "read" ])
 
       # When
       get "/api/organizations/#{org.id}"
@@ -39,6 +41,14 @@ RSpec.describe "Organizations API", type: :request do
       expect(json["id"]).to eq(org.id)
       expect(json["name"]).to eq("Test Org")
       expect(json["slug"]).to eq("test-org")
+
+      # Check roles are included
+      expect(json["roles"]).to be_an(Array)
+      expect(json["roles"].length).to eq(2)
+
+      admin_role = json["roles"].find { |r| r["name"] == "Admin" }
+      expect(admin_role).to be_present
+      expect(admin_role["permissions"]).to eq([ "read", "write" ])
     end
 
     it "returns 404 when organization not found" do

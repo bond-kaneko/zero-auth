@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-class Membership < ApplicationRecord
+class RoleMembership < ApplicationRecord
+  self.table_name = "memberships"
+
   belongs_to :role
   has_one :organization, through: :role
 

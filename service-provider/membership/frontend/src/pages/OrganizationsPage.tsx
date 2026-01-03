@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 
 import { organizationsApi } from '~/api/organizations'
 import { Alert } from '~/components/Alert'
+import { Button } from '~/components/Button'
 import { Card } from '~/components/Card'
+import { CreateOrganizationForm } from '~/components/CreateOrganizationForm'
 import { LoadingSpinner } from '~/components/LoadingSpinner'
 import { OrganizationTableHeader } from '~/components/OrganizationTableHeader'
 import { OrganizationTableRow } from '~/components/OrganizationTableRow'
@@ -15,6 +17,7 @@ export default function OrganizationsPage(): JSX.Element {
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showForm, setShowForm] = useState(false)
 
   useEffect(() => {
     void loadOrganizations()
@@ -34,14 +37,43 @@ export default function OrganizationsPage(): JSX.Element {
     }
   }
 
+  const handleCreateSuccess = (): void => {
+    setShowForm(false)
+    void loadOrganizations()
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PageHeader title="Organization Management" backTo="/" backText="← Back to Home" />
 
+        {showForm && (
+          <Card className="p-6 mb-6">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Create New Organization</h2>
+            </div>
+            <CreateOrganizationForm
+              onSuccess={handleCreateSuccess}
+              onCancel={() => {
+                setShowForm(false)
+              }}
+            />
+          </Card>
+        )}
+
         <Card className="p-6">
-          <div className="mb-6">
+          <div className="mb-6 flex justify-between items-center">
             <h2 className="text-xl font-semibold text-gray-900">Organizations</h2>
+            {!showForm && (
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setShowForm(true)
+                }}
+              >
+                Add Organization
+              </Button>
+            )}
           </div>
 
           {loading && <LoadingSpinner />}
