@@ -15,9 +15,39 @@ class User < ApplicationRecord
 
   before_validation :generate_sub, on: :create
 
+  # Publish events after transaction commits
+  after_commit :publish_user_created_event, on: :create
+  after_commit :publish_user_deleted_event, on: :destroy
+
   private
 
   def generate_sub
     self.sub ||= SecureRandom.uuid
+  end
+
+  def publish_user_created_event
+    Events::EventPublisher.current.publish(
+      event_type: 'user.created',
+      payload: {
+        user_id: sub,
+        email: email,
+        name: name,
+      },
+    )
+  rescue Events::EventPublisher::PublishError => e
+    Rails.logger.error("Failed to publish user.created event for user #{sub}: #{e.message}")
+    # Don't raise - event publish failure shouldn't fail user creation
+  end
+
+  def publish_user_deleted_event
+    Events::EventPublisher.current.publish(
+      event_type: 'user.deleted',
+      payload: {
+        user_id: sub,
+      },
+    )
+  rescue Events::EventPublisher::PublishError => e
+    Rails.logger.error("Failed to publish user.deleted event for user #{sub}: #{e.message}")
+    # Don't raise - event publish failure shouldn't fail user deletion
   end
 end

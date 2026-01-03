@@ -132,6 +132,21 @@ GEM
     json (2.18.0)
     jwt (3.1.2)
       base64
+    karafka-core (2.5.8)
+      karafka-rdkafka (>= 0.20.0)
+      logger (>= 1.6.0)
+    karafka-rdkafka (0.23.1)
+      ffi (~> 1.17.1)
+      json (> 2.0)
+      logger
+      mini_portile2 (~> 2.6)
+      rake (> 12)
+    karafka-rdkafka (0.23.1-aarch64-linux-gnu)
+      ffi (~> 1.17.1)
+      json (> 2.0)
+      logger
+      mini_portile2 (~> 2.6)
+      rake (> 12)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     listen (3.9.0)
@@ -150,6 +165,7 @@ GEM
     marcel (1.1.0)
     matrix (0.4.3)
     mini_mime (1.1.5)
+    mini_portile2 (2.8.9)
     minitest (6.0.1)
       prism (~> 1.5)
     msgpack (1.8.0)
@@ -321,6 +337,10 @@ GEM
     unicode-emoji (4.2.0)
     uri (1.1.1)
     useragent (0.16.11)
+    waterdrop (2.8.15)
+      karafka-core (>= 2.4.9, < 3.0.0)
+      karafka-rdkafka (>= 0.23.1)
+      zeitwerk (~> 2.3)
     web-console (4.2.1)
       actionview (>= 6.0.0)
       activemodel (>= 6.0.0)
@@ -364,6 +384,7 @@ DEPENDENCIES
   stimulus-rails
   turbo-rails
   tzinfo-data
+  waterdrop (~> 2.7)
   web-console
 
 RUBY VERSION
