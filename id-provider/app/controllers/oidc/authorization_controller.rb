@@ -78,44 +78,37 @@ module Oidc
     end
 
     def handle_authorization_approval
-      generator = Oidc::AuthorizationCodeGenerator.new(
+      service = Oidc::AuthorizationApprovalService.new(
         current_user,
         @found_client,
         session[:authorization_params],
       )
-      authorization_code = generator.generate
-
-      requested_scopes = parse_scopes(session[:authorization_params]['scope'])
-      UserConsent.record_for(user: current_user, client: @found_client, scopes: requested_scopes)
-
-      redirect_url_presenter = RedirectUrlPresenter.new(
-        redirect_uri: session[:authorization_params]['redirect_uri'],
-        state: session[:authorization_params]['state'],
-      )
-      redirect_url_presenter.approved(authorization_code.code)
+      result = service.approve
+      result[:redirect_uri]
     end
 
     def handle_authorization_denial
-      redirect_url_presenter = RedirectUrlPresenter.new(
-        redirect_uri: session[:authorization_params]['redirect_uri'],
-        state: session[:authorization_params]['state'],
+      service = Oidc::AuthorizationApprovalService.new(
+        current_user,
+        @found_client,
+        session[:authorization_params],
       )
-      redirect_url_presenter.denied
+      result = service.deny
+      result[:redirect_uri]
     end
 
     def auto_approve_authorization
       save_authorization_params_to_session
-      generator = Oidc::AuthorizationCodeGenerator.new(current_user, @found_client, session[:authorization_params])
-      authorization_code = generator.generate
 
-      redirect_url_presenter = RedirectUrlPresenter.new(
-        redirect_uri: session[:authorization_params]['redirect_uri'],
-        state: session[:authorization_params]['state'],
+      service = Oidc::AuthorizationApprovalService.new(
+        current_user,
+        @found_client,
+        session[:authorization_params],
       )
-      redirect_uri = redirect_url_presenter.approved(authorization_code.code)
+      result = service.approve
 
       session.delete(:authorization_params)
-      redirect_to redirect_uri, allow_other_host: true
+      redirect_to result[:redirect_uri], allow_other_host: true
     end
 
     def show_consent_screen(requested_scopes)
