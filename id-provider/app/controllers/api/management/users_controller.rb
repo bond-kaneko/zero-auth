@@ -3,8 +3,19 @@
 module Api
   module Management
     class UsersController < ApplicationController
+      include Paginatable
+
+      rescue_from Paginatable::ValidationError, with: :render_validation_error
+
       def index
+        page = params[:page]&.to_i || 1
+        per_page = params[:per_page]&.to_i || 100
+
+        validate_pagination_params!(page: page, per_page: per_page)
+
         @users = User.order(created_at: :desc)
+          .limit(per_page)
+          .offset((page - 1) * per_page)
         render json: @users
       end
 
@@ -40,6 +51,10 @@ module Api
       end
 
       private
+
+      def render_validation_error(exception)
+        render json: { errors: [exception.message] }, status: :bad_request
+      end
 
       def user_params
         params.expect(user: %i[email password name given_name family_name picture email_verified])
