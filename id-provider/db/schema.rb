@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_03_014025) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_03_085553) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -54,6 +54,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_03_014025) do
     t.boolean "active", default: true
     t.string "client_id", null: false
     t.string "client_secret", null: false
+    t.string "client_type", default: "authorization_code", null: false
     t.string "client_uri"
     t.datetime "created_at", null: false
     t.text "grant_types", default: [], array: true
@@ -66,6 +67,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_03_014025) do
     t.string "tos_uri"
     t.datetime "updated_at", null: false
     t.index ["client_id"], name: "index_clients_on_client_id", unique: true
+    t.index ["client_type"], name: "index_clients_on_client_type"
   end
 
   create_table "refresh_tokens", force: :cascade do |t|
