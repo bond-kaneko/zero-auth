@@ -10,6 +10,7 @@ module Oidc
         expires_in: 3600,
         id_token: tokens[:id_token],
       }
+      @response[:scope] = tokens[:scope] if tokens[:scope].present?
     end
 
     def with_refresh_token

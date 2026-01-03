@@ -4,6 +4,9 @@ require 'rails_helper'
 
 RSpec.describe 'OIDC Token Endpoint', type: :request do
   let(:client) { create(:client) }
+  let(:client_credentials_client) do
+    create(:client, client_type: 'client_credentials', grant_types: ['client_credentials'])
+  end
   let(:user) { create(:user) }
   let(:valid_code) { create(:authorization_code, user: user, client: client) }
 
@@ -173,6 +176,83 @@ RSpec.describe 'OIDC Token Endpoint', type: :request do
         json = response.parsed_body
         expect(json['error']).to eq('invalid_grant')
         expect(json['error_description']).to include('Redirect URI does not match')
+      end
+    end
+
+    context 'with client_credentials grant type and Basic auth' do
+      it 'returns access token without id_token' do
+        post '/oidc/token', params: {
+          grant_type: 'client_credentials',
+        }, headers: basic_auth_header(client_credentials_client.client_id, client_credentials_client.client_secret)
+
+        expect(response).to have_http_status(:success)
+
+        json = response.parsed_body
+        expect(json['token_type']).to eq('Bearer')
+        expect(json['expires_in']).to eq(3600)
+        expect(json['access_token']).to be_present
+        expect(json['id_token']).to be_nil
+      end
+    end
+
+    context 'with client_credentials grant type and POST params auth' do
+      it 'returns access token without id_token' do
+        post '/oidc/token', params: {
+          grant_type: 'client_credentials',
+          client_id: client_credentials_client.client_id,
+          client_secret: client_credentials_client.client_secret,
+        }, headers: { 'Content-Type' => 'application/x-www-form-urlencoded' }
+
+        expect(response).to have_http_status(:success)
+
+        json = response.parsed_body
+        expect(json['token_type']).to eq('Bearer')
+        expect(json['expires_in']).to eq(3600)
+        expect(json['access_token']).to be_present
+        expect(json['id_token']).to be_nil
+      end
+    end
+
+    context 'with client_credentials grant type and scope parameter' do
+      it 'returns access token with scope' do
+        post '/oidc/token', params: {
+          grant_type: 'client_credentials',
+          scope: 'read write',
+        }, headers: basic_auth_header(client_credentials_client.client_id, client_credentials_client.client_secret)
+
+        expect(response).to have_http_status(:success)
+
+        json = response.parsed_body
+        expect(json['token_type']).to eq('Bearer')
+        expect(json['access_token']).to be_present
+        expect(json['scope']).to eq('read write')
+      end
+    end
+
+    context 'with client_credentials grant type but authorization_code client' do
+      it 'returns unsupported_grant_type error' do
+        post '/oidc/token', params: {
+          grant_type: 'client_credentials',
+        }, headers: basic_auth_header(client.client_id, client.client_secret)
+
+        expect(response).to have_http_status(:bad_request)
+
+        json = response.parsed_body
+        expect(json['error']).to eq('unsupported_grant_type')
+        expect(json['error_description']).to include('client_credentials')
+      end
+    end
+
+    context 'with client_credentials grant type and invalid client credentials' do
+      it 'returns invalid_client error' do
+        post '/oidc/token', params: {
+          grant_type: 'client_credentials',
+        }, headers: basic_auth_header(client_credentials_client.client_id, 'wrong-secret')
+
+        expect(response).to have_http_status(:bad_request)
+
+        json = response.parsed_body
+        expect(json['error']).to eq('invalid_client')
       end
     end
   end

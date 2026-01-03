@@ -2,7 +2,7 @@
 
 # app/models/access_token.rb
 class AccessToken < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, optional: true
   belongs_to :client
   belongs_to :authorization_code, optional: true
 
