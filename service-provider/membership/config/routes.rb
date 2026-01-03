@@ -12,6 +12,9 @@ Rails.application.routes.draw do
   namespace :api do
     resources :organizations, only: %i[index show create update destroy] do
       resources :roles, only: %i[create]
+      member do
+        get :memberships
+      end
     end
     resources :roles, only: [] do
       resources :memberships, only: %i[create]

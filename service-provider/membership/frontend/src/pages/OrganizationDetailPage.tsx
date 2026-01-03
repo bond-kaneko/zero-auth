@@ -1,24 +1,33 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { membershipsApi } from '~/api/memberships'
 import { organizationsApi } from '~/api/organizations'
+import { usersApi } from '~/api/users'
+import { AddMemberForm } from '~/components/AddMemberForm'
 import { Alert } from '~/components/Alert'
 import { Card } from '~/components/Card'
 import { CreateRoleForm } from '~/components/CreateRoleForm'
 import { LoadingSpinner } from '~/components/LoadingSpinner'
+import { MemberList } from '~/components/MemberList'
 import { OrganizationInfo } from '~/components/OrganizationInfo'
 import { PageHeader } from '~/components/PageHeader'
 import { RoleList } from '~/components/RoleList'
 
 import type { JSX } from 'react'
+import type { Membership } from '~/types/membership'
 import type { Organization } from '~/types/organization'
+import type { User } from '~/types/user'
 
 export default function OrganizationDetailPage(): JSX.Element {
   const { id } = useParams<{ id: string }>()
   const [organization, setOrganization] = useState<Organization | null>(null)
+  const [memberships, setMemberships] = useState<Membership[]>([])
+  const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showRoleForm, setShowRoleForm] = useState(false)
+  const [showMemberForm, setShowMemberForm] = useState(false)
 
   const loadOrganization = useCallback(async (): Promise<void> => {
     if (!id) return
@@ -26,8 +35,17 @@ export default function OrganizationDetailPage(): JSX.Element {
     try {
       setLoading(true)
       setError(null)
-      const data = await organizationsApi.get(id)
-      setOrganization(data)
+
+      // Load organization, memberships, and users in parallel
+      const [orgData, membershipsData, usersData] = await Promise.all([
+        organizationsApi.get(id),
+        membershipsApi.list(id),
+        usersApi.list(),
+      ])
+
+      setOrganization(orgData)
+      setMemberships(membershipsData)
+      setUsers(usersData)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load organization')
       console.error('Failed to load organization:', err)
@@ -40,8 +58,13 @@ export default function OrganizationDetailPage(): JSX.Element {
     void loadOrganization()
   }, [loadOrganization])
 
-  const handleCreateSuccess = (): void => {
+  const handleRoleCreateSuccess = (): void => {
     setShowRoleForm(false)
+    void loadOrganization()
+  }
+
+  const handleMemberAddSuccess = (): void => {
+    setShowMemberForm(false)
     void loadOrganization()
   }
 
@@ -84,7 +107,7 @@ export default function OrganizationDetailPage(): JSX.Element {
               </div>
               <CreateRoleForm
                 organizationId={organization.id}
-                onSuccess={handleCreateSuccess}
+                onSuccess={handleRoleCreateSuccess}
                 onCancel={() => {
                   setShowRoleForm(false)
                 }}
@@ -97,6 +120,25 @@ export default function OrganizationDetailPage(): JSX.Element {
             showForm={showRoleForm}
             onAddClick={() => {
               setShowRoleForm(true)
+            }}
+          />
+
+          {showMemberForm && (
+            <AddMemberForm
+              roles={organization.roles ?? []}
+              users={users}
+              onSuccess={handleMemberAddSuccess}
+              onCancel={() => {
+                setShowMemberForm(false)
+              }}
+            />
+          )}
+
+          <MemberList
+            memberships={memberships}
+            users={users}
+            onAddMember={() => {
+              setShowMemberForm(true)
             }}
           />
         </div>

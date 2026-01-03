@@ -2,7 +2,7 @@
 
 module Api
   class OrganizationsController < ApplicationController
-    before_action :set_organization, only: %i[show update destroy]
+    before_action :set_organization, only: %i[show update destroy memberships]
 
     def index
       @organizations = Organization.order(created_at: :desc)
@@ -34,6 +34,11 @@ module Api
     def destroy
       @organization.destroy
       head :no_content
+    end
+
+    def memberships
+      @memberships = @organization.role_memberships
+      render json: @memberships, include: :role
     end
 
     private

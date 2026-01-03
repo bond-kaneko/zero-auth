@@ -147,4 +147,78 @@ RSpec.describe "Organizations API", type: :request do
       expect(Organization.find_by(id: org.id)).to be_nil
     end
   end
+
+  describe "GET /api/organizations/:id/memberships" do
+    it "returns all memberships for the organization with role information" do
+      # Given
+      org = Organization.create!(name: "Test Org", slug: "test-org")
+      admin_role = org.roles.create!(name: "Admin", permissions: [ "read", "write" ])
+      member_role = org.roles.create!(name: "Member", permissions: [ "read" ])
+
+      user1_id = SecureRandom.uuid
+      user2_id = SecureRandom.uuid
+
+      membership1 = admin_role.role_memberships.create!(user_id: user1_id)
+      membership2 = member_role.role_memberships.create!(user_id: user1_id)
+      membership3 = member_role.role_memberships.create!(user_id: user2_id)
+
+      # When
+      get "/api/organizations/#{org.id}/memberships"
+
+      # Then
+      expect(response).to have_http_status(:ok)
+      expect(response.content_type).to match(%r{application/json})
+
+      json = JSON.parse(response.body)
+      expect(json.length).to eq(3)
+
+      # Check membership1 (user1 - Admin role)
+      m1 = json.find { |m| m["id"] == membership1.id }
+      expect(m1).to be_present
+      expect(m1["user_id"]).to eq(user1_id)
+      expect(m1["role_id"]).to eq(admin_role.id)
+      expect(m1["role"]).to be_present
+      expect(m1["role"]["name"]).to eq("Admin")
+      expect(m1["role"]["permissions"]).to eq([ "read", "write" ])
+
+      # Check membership2 (user1 - Member role)
+      m2 = json.find { |m| m["id"] == membership2.id }
+      expect(m2).to be_present
+      expect(m2["user_id"]).to eq(user1_id)
+      expect(m2["role_id"]).to eq(member_role.id)
+      expect(m2["role"]).to be_present
+      expect(m2["role"]["name"]).to eq("Member")
+      expect(m2["role"]["permissions"]).to eq([ "read" ])
+
+      # Check membership3 (user2 - Member role)
+      m3 = json.find { |m| m["id"] == membership3.id }
+      expect(m3).to be_present
+      expect(m3["user_id"]).to eq(user2_id)
+      expect(m3["role_id"]).to eq(member_role.id)
+      expect(m3["role"]).to be_present
+      expect(m3["role"]["name"]).to eq("Member")
+      expect(m3["role"]["permissions"]).to eq([ "read" ])
+    end
+
+    it "returns empty array when organization has no memberships" do
+      # Given
+      org = Organization.create!(name: "Empty Org", slug: "empty-org")
+
+      # When
+      get "/api/organizations/#{org.id}/memberships"
+
+      # Then
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json).to eq([])
+    end
+
+    it "returns 404 when organization not found" do
+      # When
+      get "/api/organizations/00000000-0000-0000-0000-000000000000/memberships"
+
+      # Then
+      expect(response).to have_http_status(:not_found)
+    end
+  end
 end
