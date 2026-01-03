@@ -16,6 +16,17 @@ SimpleCov.start 'rails' do
   add_group 'Services', 'app/services'
 
   minimum_coverage 80
+
+  # Fail build if coverage drops below minimum
+  at_exit do
+    min_coverage = 80
+    coverage_result = SimpleCov.result
+    coverage_result.format!
+    if coverage_result.covered_percent < min_coverage
+      warn "\nCoverage (#{coverage_result.covered_percent.round(2)}%) is below the minimum (#{min_coverage}%)."
+      exit 1
+    end
+  end
 end
 
 require 'spec_helper'
