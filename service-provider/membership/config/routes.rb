@@ -11,6 +11,8 @@ Rails.application.routes.draw do
   # API endpoints
   namespace :api do
     resources :organizations, only: %i[index show create update destroy]
+
+    post "users/sync", to: "users#sync"
   end
 
   # Defines the root path route ("/")
