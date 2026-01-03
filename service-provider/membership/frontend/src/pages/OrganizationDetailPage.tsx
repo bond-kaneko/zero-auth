@@ -126,7 +126,6 @@ export default function OrganizationDetailPage(): JSX.Element {
           {showMemberForm && (
             <AddMemberForm
               roles={organization.roles ?? []}
-              users={users}
               onSuccess={handleMemberAddSuccess}
               onCancel={() => {
                 setShowMemberForm(false)

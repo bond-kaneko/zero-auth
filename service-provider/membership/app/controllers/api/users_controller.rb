@@ -14,7 +14,8 @@ module Api
 
       validate_pagination_params!(page: page, per_page: per_page)
 
-      @users = User.order(created_at: :desc)
+      @users = User.search_by_keyword(params[:keyword])
+        .order(created_at: :desc)
         .limit(per_page)
         .offset(page * per_page)
       render json: @users

@@ -101,5 +101,47 @@ RSpec.describe "Users API", type: :request do
       json = JSON.parse(response.body)
       expect(json.length).to eq(2)
     end
+
+    it "searches users by keyword (email match)" do
+      # When
+      get "/api/users?keyword=user1"
+
+      # Then
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json.length).to eq(1)
+      expect(json.first["email"]).to eq("user1@example.com")
+    end
+
+    it "searches users by keyword (name match)" do
+      # When
+      get "/api/users?keyword=User 2"
+
+      # Then
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json.length).to eq(1)
+      expect(json.first["name"]).to eq("User 2")
+    end
+
+    it "searches users by keyword (partial match)" do
+      # When
+      get "/api/users?keyword=@example.com"
+
+      # Then
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json.length).to eq(3)
+    end
+
+    it "returns empty array when no users match keyword" do
+      # When
+      get "/api/users?keyword=nonexistent"
+
+      # Then
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json).to eq([])
+    end
   end
 end
