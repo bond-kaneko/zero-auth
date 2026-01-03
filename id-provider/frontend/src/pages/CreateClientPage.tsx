@@ -1,11 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { clientsApi } from '~/api/clients'
 import { Alert } from '~/components/Alert'
 import { Button } from '~/components/Button'
 import { Card } from '~/components/Card'
+import { GrantTypesField } from '~/components/GrantTypesField'
 import { PageHeader } from '~/components/PageHeader'
+import { RedirectUrisField } from '~/components/RedirectUrisField'
+import { ResponseTypesField } from '~/components/ResponseTypesField'
+import { SelectField } from '~/components/SelectField'
 import { TextAreaField } from '~/components/TextAreaField'
 import { TextField } from '~/components/TextField'
 
@@ -17,11 +21,29 @@ export default function CreateClientPage(): JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: '',
+    client_type: 'authorization_code',
     redirect_uris: '',
     grant_types: 'authorization_code',
     response_types: 'code',
     scopes: '',
   })
+
+  // Update grant_types when client_type changes
+  useEffect(() => {
+    if (formData.client_type === 'authorization_code') {
+      setFormData((prev) => ({
+        ...prev,
+        grant_types: 'authorization_code',
+        response_types: 'code',
+      }))
+    } else if (formData.client_type === 'client_credentials') {
+      setFormData((prev) => ({
+        ...prev,
+        grant_types: 'client_credentials',
+        response_types: '',
+      }))
+    }
+  }, [formData.client_type])
 
   const handleCreate = async (): Promise<void> => {
     // 文字列を配列に変換（改行またはカンマ区切り）
@@ -42,17 +64,21 @@ export default function CreateClientPage(): JSX.Element {
       setError('Client name is required')
       return
     }
-    if (redirect_uris.length === 0) {
-      setError('At least one redirect URI is required')
-      return
-    }
     if (grant_types.length === 0) {
       setError('At least one grant type is required')
       return
     }
-    if (response_types.length === 0) {
-      setError('At least one response type is required')
-      return
+
+    // authorization_code clients require redirect_uris and response_types
+    if (formData.client_type === 'authorization_code') {
+      if (redirect_uris.length === 0) {
+        setError('At least one redirect URI is required for authorization_code clients')
+        return
+      }
+      if (response_types.length === 0) {
+        setError('At least one response type is required for authorization_code clients')
+        return
+      }
     }
 
     try {
@@ -61,9 +87,10 @@ export default function CreateClientPage(): JSX.Element {
 
       const requestData = {
         name: formData.name,
-        redirect_uris,
+        client_type: formData.client_type,
+        redirect_uris: redirect_uris.length > 0 ? redirect_uris : undefined,
         grant_types,
-        response_types,
+        response_types: response_types.length > 0 ? response_types : undefined,
         scopes: scopes.length > 0 ? scopes : undefined,
       }
 
@@ -80,7 +107,7 @@ export default function CreateClientPage(): JSX.Element {
   }
 
   const updateField = (
-    field: 'name' | 'redirect_uris' | 'grant_types' | 'response_types' | 'scopes',
+    field: 'name' | 'client_type' | 'redirect_uris' | 'grant_types' | 'response_types' | 'scopes',
     value: string
   ): void => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -110,43 +137,53 @@ export default function CreateClientPage(): JSX.Element {
               placeholder="My Application"
             />
 
-            {/* Redirect URIs */}
-            <TextAreaField
-              id="redirect-uris"
-              label="Redirect URIs"
+            {/* Client Type */}
+            <SelectField
+              id="client-type"
+              label="Client Type"
+              value={formData.client_type}
+              onChange={(value) => {
+                updateField('client_type', value)
+              }}
+              options={[
+                {
+                  value: 'authorization_code',
+                  label: 'Authorization Code (OIDC with user login)',
+                },
+                { value: 'client_credentials', label: 'Client Credentials (M2M without user)' },
+              ]}
+              helpText={
+                formData.client_type === 'authorization_code'
+                  ? 'For applications that authenticate users via browser (requires redirect URIs)'
+                  : 'For machine-to-machine communication without user interaction'
+              }
+            />
+
+            {/* Redirect URIs - Only for authorization_code */}
+            <RedirectUrisField
               value={formData.redirect_uris}
               onChange={(value) => {
                 updateField('redirect_uris', value)
               }}
-              placeholder="https://example.com/callback"
-              rows={3}
-              helpText="Enter one URI per line or separate with commas"
+              clientType={formData.client_type}
             />
 
             {/* Grant Types */}
-            <TextAreaField
-              id="grant-types"
-              label="Grant Types"
+            <GrantTypesField
               value={formData.grant_types}
               onChange={(value) => {
                 updateField('grant_types', value)
               }}
-              placeholder="authorization_code"
-              rows={2}
-              helpText="Enter one grant type per line or separate with commas"
+              clientType={formData.client_type}
             />
 
-            {/* Response Types */}
-            <TextAreaField
-              id="response-types"
-              label="Response Types"
+            {/* Response Types - Only for authorization_code */}
+            <ResponseTypesField
               value={formData.response_types}
               onChange={(value) => {
                 updateField('response_types', value)
               }}
-              placeholder="code"
-              rows={2}
-              helpText="Enter one response type per line or separate with commas"
+              clientType={formData.client_type}
             />
 
             {/* Scopes (Optional) */}

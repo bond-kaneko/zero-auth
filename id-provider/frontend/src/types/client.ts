@@ -1,6 +1,9 @@
+export type ClientType = 'authorization_code' | 'client_credentials'
+
 export interface Client {
   id: string
   name: string
+  client_type: ClientType
   redirect_uris: string[]
   client_id: string
   client_secret: string
@@ -14,14 +17,16 @@ export interface Client {
 
 export interface CreateClientRequest {
   name: string
-  redirect_uris: string[]
+  client_type: ClientType
+  redirect_uris?: string[]
   grant_types: string[]
-  response_types: string[]
+  response_types?: string[]
   scopes?: string[]
 }
 
 export interface UpdateClientRequest {
   name?: string
+  client_type?: ClientType
   redirect_uris?: string[]
   grant_types?: string[]
   response_types?: string[]
