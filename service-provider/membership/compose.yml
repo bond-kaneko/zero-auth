@@ -13,6 +13,27 @@ services:
       - .env
     environment:
       RAILS_ENV: development
+      KAFKA_BROKERS: kafka:9092
+    networks:
+      - default
+      - id-provider_default
+    extra_hosts:
+      - "id-provider.local:host-gateway"
+      - "membership.local:host-gateway"
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: service-provider/membership/Dockerfile.dev
+    container_name: membership-worker
+    command: bundle exec karafka server
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      RAILS_ENV: development
+      KAFKA_BROKERS: kafka:9092
     networks:
       - default
       - id-provider_default
