@@ -52,11 +52,11 @@ id-providerが提供する認証機能を利用するClientです。ログイン
 
 ```mermaid
 graph TB
-    subgraph "ID Provider (https://id-provider.local:3443)"
-        IDP_FE[Frontend<br/>React + Vite<br/>:5173]
-        IDP_API[Rails API<br/>:3000]
-        IDP_DB[(PostgreSQL<br/>:5432)]
-        IDP_NGINX[Nginx<br/>:443→3443]
+    subgraph "ID Provider"
+        IDP_FE[Frontend]
+        IDP_API[Backend]
+        IDP_DB[(PostgreSQL)]
+        IDP_NGINX[Nginx]
 
         IDP_NGINX --> IDP_FE
         IDP_NGINX --> IDP_API
@@ -64,26 +64,26 @@ graph TB
     end
 
     subgraph "Message Broker"
-        ZK[Zookeeper<br/>:2181]
-        KAFKA[Kafka<br/>:9092/9093]
+        ZK[Zookeeper]
+        KAFKA[Kafka]
         ZK --> KAFKA
     end
 
-    subgraph "Service Provider - Main (https://service-provider.local:3444)"
-        MAIN_API[Rails<br/>:3001]
+    subgraph "Main Service"
+        MAIN_API[Rails]
         MAIN_DB[(PostgreSQL)]
-        MAIN_NGINX[Nginx<br/>:443→3444]
+        MAIN_NGINX[Nginx]
 
         MAIN_NGINX --> MAIN_API
         MAIN_API --> MAIN_DB
     end
 
-    subgraph "Service Provider - Membership (https://membership.local:3445)"
-        MEM_FE[Frontend<br/>React + Vite<br/>:5173]
-        MEM_API[Rails API<br/>:3002]
+    subgraph "Membership Service"
+        MEM_FE[Frontend]
+        MEM_API[Backend]
         MEM_WORKER[Karafka Worker<br/>Event Consumer]
-        MEM_DB[(PostgreSQL<br/>:5432)]
-        MEM_NGINX[Nginx<br/>:443→3445]
+        MEM_DB[(PostgreSQL)]
+        MEM_NGINX[Nginx]
 
         MEM_NGINX --> MEM_FE
         MEM_NGINX --> MEM_API
@@ -100,15 +100,6 @@ graph TB
 
     %% User管理
     IDP_API -.Manual Sync API.-> MEM_API
-
-    style IDP_FE fill:#e1f5ff
-    style IDP_API fill:#bbdefb
-    style MEM_FE fill:#e1f5ff
-    style MEM_API fill:#bbdefb
-    style MEM_WORKER fill:#c8e6c9
-    style MAIN_API fill:#bbdefb
-    style KAFKA fill:#fff9c4
-    style ZK fill:#fff9c4
 ```
 
 ### データフロー
