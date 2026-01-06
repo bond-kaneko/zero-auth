@@ -10,6 +10,7 @@ import { LoadingSpinner } from '~/components/LoadingSpinner'
 import { PageHeader } from '~/components/PageHeader'
 import { ReadOnlyField } from '~/components/ReadOnlyField'
 import { TextField } from '~/components/TextField'
+import { UserAvatar } from '~/components/UserAvatar'
 
 import type { JSX } from 'react'
 import type { User } from '~/types/user'
@@ -173,14 +174,22 @@ export default function UserDetailPage(): JSX.Element {
             />
 
             {/* Picture */}
-            <TextField
-              id="user-picture"
-              label="Picture URL"
-              value={formData.picture}
-              onChange={(value) => {
-                updateTextField('picture', value)
-              }}
-            />
+            <div className="space-y-3">
+              <TextField
+                id="user-picture"
+                label="Picture URL"
+                value={formData.picture}
+                onChange={(value) => {
+                  updateTextField('picture', value)
+                }}
+              />
+              {formData.picture && (
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+                  <UserAvatar src={formData.picture} />
+                </div>
+              )}
+            </div>
 
             {/* Email Verified */}
             <div>
