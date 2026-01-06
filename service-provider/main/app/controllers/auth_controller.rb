@@ -15,6 +15,16 @@ class AuthController < ApplicationController
       return redirect_to root_url, alert: 'Invalid state parameter'
     end
 
+    if params[:error].present?
+      error_message = "Authentication failed: #{params[:error]}"
+      error_message += " - #{params[:error_description]}" if params[:error_description].present?
+      return redirect_to root_url, alert: error_message
+    end
+
+    if params[:code].blank?
+      return redirect_to root_url, alert: 'Authentication failed: No authorization code received'
+    end
+
     access_token = oidc_client.authorize!(code: params[:code])
     userinfo = access_token.userinfo!
 
