@@ -99,44 +99,36 @@
       <h1>Welcome to Service Provider</h1>
 
       <% if session[:user_info] %>
-        <div class="user-info">
-          <h2>User Information</h2>
-          <dl>
-            <dt>Subject (sub)</dt>
-            <dd><%= session[:user_info]['sub'] %></dd>
+        <!-- Profile Header -->
+        <div style="display: flex; align-items: center; gap: 30px; padding: 30px 0; border-bottom: 1px solid #e0e0e0; margin-bottom: 30px;">
+          <% if session[:user_info]['picture'] %>
+            <img
+              src="<%= session[:user_info]['picture'] %>"
+              alt="Profile Picture"
+              style="width: 120px; height: 120px; border-radius: 60px; border: 3px solid #007bff; object-fit: cover; flex-shrink: 0;"
+            >
+          <% end %>
 
-            <% if session[:user_info]['name'] %>
-              <dt>Name</dt>
-              <dd><%= session[:user_info]['name'] %></dd>
-            <% end %>
-
-            <% if session[:user_info]['given_name'] %>
-              <dt>Given Name</dt>
-              <dd><%= session[:user_info]['given_name'] %></dd>
-            <% end %>
-
-            <% if session[:user_info]['family_name'] %>
-              <dt>Family Name</dt>
-              <dd><%= session[:user_info]['family_name'] %></dd>
-            <% end %>
+          <div style="flex-grow: 1;">
+            <h2 style="margin: 0 0 8px 0; font-size: 28px; color: #333;">
+              <%= session[:user_info]['name'] || session[:user_info]['email'] %>
+            </h2>
 
             <% if session[:user_info]['email'] %>
-              <dt>Email</dt>
-              <dd>
+              <p style="margin: 0 0 8px 0; color: #666; font-size: 16px;">
                 <%= session[:user_info]['email'] %>
                 <% if session[:user_info]['email_verified'] %>
-                  <span style="color: #28a745;">✓ Verified</span>
+                  <span style="color: #28a745; font-size: 14px;">✓ Verified</span>
                 <% else %>
-                  <span style="color: #dc3545;">✗ Not Verified</span>
+                  <span style="color: #dc3545; font-size: 14px;">✗ Not Verified</span>
                 <% end %>
-              </dd>
+              </p>
             <% end %>
 
-            <% if session[:user_info]['picture'] %>
-              <dt>Picture</dt>
-              <dd><img src="<%= session[:user_info]['picture'] %>" alt="Profile Picture" style="max-width: 100px; border-radius: 50%;"></dd>
-            <% end %>
-          </dl>
+            <p style="margin: 0; color: #999; font-size: 14px;">
+              ID: <%= session[:user_info]['sub'] %>
+            </p>
+          </div>
         </div>
 
         <div class="token-info">
