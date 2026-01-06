@@ -218,4 +218,72 @@ RSpec.describe User do
       expect(user1.sub).not_to eq(user2.sub)
     end
   end
+
+  describe 'picture generation' do
+    it 'generates identicon picture on create' do
+      allow(mock_publisher).to receive(:publish)
+
+      user = described_class.create!(
+        email: 'test@example.com',
+        password: 'password123',
+        password_confirmation: 'password123',
+      )
+
+      expect(user.picture).to be_present
+      expect(user.picture).to start_with('data:image/svg+xml;base64,')
+    end
+
+    it 'generates different pictures for different users' do
+      allow(mock_publisher).to receive(:publish)
+
+      user1 = described_class.create!(
+        email: 'user1@example.com',
+        password: 'password123',
+        password_confirmation: 'password123',
+      )
+
+      user2 = described_class.create!(
+        email: 'user2@example.com',
+        password: 'password123',
+        password_confirmation: 'password123',
+      )
+
+      expect(user1.picture).not_to eq(user2.picture)
+    end
+
+    it 'does not override manually set picture' do
+      allow(mock_publisher).to receive(:publish)
+
+      custom_picture = 'https://example.com/custom-avatar.jpg'
+      user = described_class.create!(
+        email: 'test@example.com',
+        password: 'password123',
+        password_confirmation: 'password123',
+        picture: custom_picture,
+      )
+
+      expect(user.picture).to eq(custom_picture)
+    end
+
+    it 'includes picture in user.created event' do
+      allow(mock_publisher).to receive(:publish)
+
+      user = described_class.create!(
+        email: 'test@example.com',
+        name: 'Test User',
+        password: 'password123',
+        password_confirmation: 'password123',
+      )
+
+      expect(mock_publisher).to have_received(:publish).with(
+        event_type: 'user.created',
+        payload: hash_including(
+          user_id: user.sub,
+          email: 'test@example.com',
+          name: 'Test User',
+          picture: user.picture,
+        ),
+      )
+    end
+  end
 end

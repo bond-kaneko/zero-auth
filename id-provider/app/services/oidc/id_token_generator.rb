@@ -32,9 +32,11 @@ module Oidc
     end
 
     def add_claims_to_payload(payload)
-      return unless @authorization_code.scopes.include?('profile')
+      if @authorization_code.scopes.include?('profile')
+        payload[:name] = @user.name if @user.name.present?
+        payload[:picture] = @user.picture if @user.picture.present?
+      end
 
-      payload[:name] = @user.name if @user.respond_to?(:name)
       payload[:email] = @user.email if @authorization_code.scopes.include?('email')
     end
 

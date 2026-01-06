@@ -14,6 +14,7 @@ class User < ApplicationRecord
   validates :sub, presence: true, uniqueness: true
 
   before_validation :generate_sub, on: :create
+  before_create :generate_picture
 
   # Publish events after transaction commits
   after_commit :publish_user_created_event, on: :create
@@ -25,6 +26,12 @@ class User < ApplicationRecord
     self.sub ||= SecureRandom.uuid
   end
 
+  def generate_picture
+    return if picture.present?
+
+    self.picture = Identicon.generate(sub).to_data_uri
+  end
+
   def publish_user_created_event
     Events::EventPublisher.current.publish(
       event_type: 'user.created',
@@ -32,6 +39,7 @@ class User < ApplicationRecord
         user_id: sub,
         email: email,
         name: name,
+        picture: picture,
       },
     )
   rescue Events::EventPublisher::PublishError => e
