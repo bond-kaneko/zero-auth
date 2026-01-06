@@ -1,26 +1,52 @@
 # zero-auth
 
-OpenID Connect (OIDC) を使った認証システムのホビープロジェクト。
+OpenID Connect (OIDC) を使った認証システムのホビープロジェクトです。
 
 ## 構成
 
-このプロジェクトは、マイクロサービスアーキテクチャを採用し、Kafkaを介したイベント駆動の認証・認可システムを実現しています。
+このプロジェクトは、マイクロサービスアーキテクチャを採用し、Kafkaを介したイベント駆動のAuthシステムを実現しています。
 
 ### サービス一覧
 
-- **`id-provider/`**: OIDC Identity Provider（認証サーバー）
-  - ユーザー認証、クライアント管理、トークン発行
-  - ユーザーイベント（作成/削除）をKafkaに発行
-  - URL: https://id-provider.local:3443
+#### **`id-provider/`**: OIDC Identity Provider（認証サーバー）
 
-- **`service-provider/main/`**: OIDC Client（サービスプロバイダー）
-  - OIDCを使った認証フロー実装サンプル
-  - URL: https://service-provider.local:3444
+OIDC ClientとUserを管理しています。
 
-- **`service-provider/membership/`**: Organization/Role/Membership管理サービス
-  - 組織・役割・メンバーシップ管理
-  - id-providerからKafka経由でユーザー情報を自動同期
-  - URL: https://membership.local:3445
+##### Client
+
+Authorization Code FlowとClient Credentials Flowに対応しています。
+
+![Client Management](./docs/images/client-management.png)
+
+##### User
+
+Userを保存し、作成・削除時にKafka経由でイベントを発行します。
+
+![User Management](./docs/images/user-management.png)
+
+##### ログイン画面
+
+OIDCによる認証機能を提供します。この画面上から新規作成も可能です。
+
+![Login Page](./docs/images/login-page.png)
+
+#### **`service-provider/main/`**: OIDC Client（メインサービス）
+
+id-providerが提供する認証機能を利用するClientです。ログインユーザーの情報を表示します。
+
+![Main Service](./docs/images/main-service.png)
+
+#### **`service-provider/membership/`**: Organization/Role/Membership管理サービス
+
+組織とユーザーの所属情報を管理します。ユーザー情報はid-providerを参照しています。
+
+##### 組織管理
+
+![Organization Management](./docs/images/organization-management.png)
+
+組織の詳細画面からUserをMemberに追加できます。
+
+![Organization Detail](./docs/images/organization-detail.png)
 
 ### システム構成図
 
